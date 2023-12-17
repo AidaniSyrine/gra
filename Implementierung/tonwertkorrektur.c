@@ -1,8 +1,9 @@
 //
 // Created by tade on 12/16/23.
 //
-#include <string.h>
+#include <stdio.h>
 #include <inttypes.h>
+#include "placeholder.h"
 
 void levels_adjustment(
         const uint8_t* img, size_t width, size_t height,
@@ -12,4 +13,7 @@ void levels_adjustment(
         uint8_t* result
         );
 
-int main();
+int main() {
+    printf("Welcome to Project!\n");
+    helper_func();
+}

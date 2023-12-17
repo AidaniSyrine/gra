@@ -5,4 +5,6 @@
 //Header Guards
 #pragma once
 
+void helper_func();
+
 
