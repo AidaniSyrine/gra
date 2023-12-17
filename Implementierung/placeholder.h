@@ -5,6 +5,16 @@
 //Header Guards
 #pragma once
 
-void helper_func();
+#include <inttypes.h>
+
+/*
+ * struct description needed
+ */
+
+//typedef struct option longopts{
+
+//} longopts;
+
+void print_help();
 
 

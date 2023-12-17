@@ -3,7 +3,6 @@
 //
 #include <stdio.h>
 
-void helper_func() {
-    printf("Hi, from placeholder!\n");
+void print_help(){
+    puts("print_help()");
 }
-
