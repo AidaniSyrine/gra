@@ -27,20 +27,21 @@ int test_io(char* path, const char* arg) {
 /*
  *
  */
-char* read_img(const char* path) {
-
-}
-
-/*
- *
- */
-int test_lvl_args() {
+int read_img(const char* path, uint8_t* img, size_t width, size_t height) {
     return 0;
 }
 
 /*
  *
  */
-int test_coeff_args() {
+int test_lvl_args(int* dest, char* args[], int position) {
     return 0;
 }
+
+/*
+ *
+ */
+int test_coeff_args(int* dest, char* args[], int position){
+    return 0;
+}
+

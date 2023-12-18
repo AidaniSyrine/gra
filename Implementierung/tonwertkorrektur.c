@@ -53,6 +53,7 @@ int main(int argc, char* argv[]) {
      */
     while((option = getopt_long(argc, argv, "-HO:V:B::ho:v:b::", longopts, &option_index)) != EOF) {
             switch(option) {
+                //check double
                 case 0: //Handle longopts
                     switch (longopts[option_index].val) {
                         case 'c':
@@ -131,8 +132,7 @@ int main(int argc, char* argv[]) {
             }
     }
     //Default values setting
-    es = as = (!sflag)? ES : es;
-
+    
 
     // cflag depends on the impl
     // read image to array of pixel struct
