@@ -7,8 +7,8 @@ CC = gcc
 SOURCE = $(wildcard *.c)
 
 # Flags
-WFLAGS = -Wall -Wextra -Wpedantic
-
+WFLAGS = -Wall -Wextra
+#-Wpedantic
 # Compile with disabled optimisation
 tonwertkorrektur: $(SOURCE)
 	$(CC) $^ -o $@.out -std=c11 -msse4.1 -O0 $(WFLAGS)
