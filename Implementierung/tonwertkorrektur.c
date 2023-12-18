@@ -16,9 +16,16 @@ static const struct option longopts[] = {
         {"lvlss",   required_argument, &sflag,  's'},
         {"lvlsm",   required_argument, &mflag, 'm'},
         {"lvlsw",   required_argument, &wflag, 'w'},
-        {"help",    no_argument, 0, 'h'},
+        {"help",    no_argument, NULL, 'h'},
         {0,0,0,0}
 };
+
+ struct ppm {
+    size_t width;
+    size_t height; 
+    int maxpixel;
+};
+
 void levels_adjustment(
         const uint8_t* img, size_t width, size_t height,
         float a, float b, float c,
@@ -52,48 +59,35 @@ int main(int argc, char* argv[]) {
                             //still need to check values [0,255]
                         case 'c':
                             if (sscanf(optarg, "%d %d %d", &a, &b, &c ) != 3) {
-                                fprintf(stderr, "Arg errorr and help\n");
+                                fprintf(stderr, "Arg error and help\n");
                                 return EXIT_FAILURE;
                             }
                             printf("a = %d, b = %d, c = %d\n", a, b, c);
                             break;
                         case 's':
                                 if (sscanf(optarg, "%d %d", &e_s, &a_s) != 2) {
-                                    fprintf(stderr, "Arg errorr and help\n");
+                                    fprintf(stderr, "Arg error and help\n");
                                     return EXIT_FAILURE;
                                 }
                             printf("e_s= %d, a_s= %d\n", e_s, a_s);
                             break;
                         case 'm':
                                 if (sscanf(optarg, "%d %d", &e_m, &a_m) != 2) {
-                                    fprintf(stderr, "Arg errorr and help\n");
+                                    fprintf(stderr, "Arg error and help\n");
                                     return EXIT_FAILURE;
                                 }
                             printf("e_m = %d, a_m = %d\n", e_m, a_m);
                             break;
                         case 'w':
                                 if (sscanf(optarg, "%d %d", &e_w, &a_w) != 2) {
-                                    fprintf(stderr, "Arg errorr and help\n");
+                                    fprintf(stderr, "Arg error and help\n");
                                     return EXIT_FAILURE;
                                 }
                             printf("e_w = %d, a_w = %d\n", e_w, a_w);
                             break;
-                        case '?':
-                            fprintf(stderr, "Option: Required argument. See 'tonwertkorrektur --help'.\n");
-                            return EXIT_FAILURE;
-                        default:
-                            puts("UNREACHABLE\n");
-                            break;
                     }
                     break;
-                case 1: // case for non-option arg input data
-                    if (access(optarg, F_OK) != -1)
-                        input_file = strncpy(input_file, optarg, strlen(optarg));
-                    else {
-                        fprintf(stderr, "none existing input file | Access permission denied | format not p6\n");
-                        return EXIT_FAILURE;
-                    }
-                    break;
+                // case 1: // case for non-option arg input data
                 case 'h':
                     hflag++;
                     print_help();
@@ -102,19 +96,24 @@ int main(int argc, char* argv[]) {
                     if(optarg != NULL) {
                         oflag++;
                         if (access(optarg, F_OK) != -1)
-                            input_file = strncpy(output_file, optarg, strlen(optarg));
+                            output_file = strncpy(output_file, optarg, strlen(optarg));
                         else {
                             fprintf(stderr, "none existing output file | Access permission denied | format?\n");
                             return EXIT_FAILURE;
                         }
-                        printf("Output not specified\n");
                     }
                     break;
                 case 'V':
+                    if(optarg != NULL) {
                     vflag++;
                     //if optarg is not a valid integral number it returs 0
                     varg = atoi(optarg);
                     printf("varg= %d\n", varg);
+                    }
+                    else {
+                        fprintf(stderr, "Argument missing\n");
+                        return EXIT_FAILURE;
+                    }
                     break;
                 case 'B':
                     if(optarg != NULL) {
@@ -122,10 +121,19 @@ int main(int argc, char* argv[]) {
                         barg = atoi(optarg);
                         printf("barg= %d\n", barg);
                     }
-                    printf("ARG NOT specified -> Default = 1 :)\n");
+                    else {
+                        printf("ARG NOT specified -> Default = 1 :)\n");
+                    }
                     break;
-                case '?': //unkonown option or missing arg
+                case ':': // missing arg
+                    fprintf(stderr, "Option: Required argument. See 'tonwertkorrektur --help'.\n");
+                    return EXIT_FAILURE;
                     break;
+                case '?': //unkonown option  ;:_M:
+                    fprintf(stderr, "Unknown or ambiguous option. See 'tonwertkorrektur --help'.\n");
+                    return EXIT_FAILURE;
+                    break;
+                
             }
     }
 
@@ -134,7 +142,34 @@ int main(int argc, char* argv[]) {
             fprintf(stderr, "Positional Argument: 'input_file' is required!\n");
             return EXIT_FAILURE;
         }
+        if(optind +1 != argc) {
+            fprintf(stderr, "Positional Argument: only one 'input_file' is required!\n");
+            return EXIT_FAILURE;
+        }
         printf("Input_File= %s\n", argv[optind]);
+        // check if the file exists
+        if (access(argv[optind], F_OK) != -1){
+                        input_file = strncpy(input_file, argv[optind], strlen(argv[optind]));
+                        FILE  *input = fopen(input_file, "r");
+                        if (input==NULL){
+                                fprintf(stderr,"Error reading file\n");
+                                 return EXIT_FAILURE;
+                        }
+                        struct ppm inputdim ;
+                        unsigned char* pixels = isvalid(input, inputdim);
+                        if (pixels ==  NULL){
+                                fprintf(stderr,"format not P6\n");
+                                fclose(input);
+                                 return EXIT_FAILURE;
+                        }
+                        fclose(input);
+                        greylevels ();
+
+        }
+                    else {
+                        fprintf(stderr, "none existing input file | Access permission denied | format not p6\n");
+                        return EXIT_FAILURE;
+                    }
     }
     return EXIT_SUCCESS;
 }
