@@ -7,8 +7,7 @@
 #include <inttypes.h>
 #include <getopt.h>
 #include <stdbool.h>
-#include <unistd.h>
-#include <ctype.h>
+#include <errno.h>
 #include "io_operations.h"
 
 void levels_adjustment(
@@ -27,7 +26,7 @@ int main(int argc, char* argv[]) {
     int option;
 
     // Flags
-    int vflag = 0, bflag = 1, hflag = 0, oflag = 0;
+    int input_flag = 0, output_flag = 0, vflag = 0, bflag = 0, hflag = 0;
 
     // Arguments
     int varg = 0, barg = 1;
@@ -57,7 +56,7 @@ int main(int argc, char* argv[]) {
                 case 0: //Handle longopts
                     switch (longopts[option_index].val) {
                         case 'c':
-                            int coeff[3];
+                            ;int coeff[3];
                             if (!test_coeff_args(coeff, argv, optind - 1))
                                 goto arg_error;
                             a = coeff[0];
@@ -65,21 +64,21 @@ int main(int argc, char* argv[]) {
                             c = coeff[2];
                             break;
                         case 's':
-                            int es_as[2];
+                            ;int es_as[2];
                             if (!test_lvl_args(es_as, argv, optind - 1))
                                 goto arg_error;
                             es = es_as[0];
                             as = es_as[1];
                             break;
                         case 'm':
-                            int em_am[2];
+                            ;int em_am[2];
                             if (!test_lvl_args(em_am, argv, optind - 1))
                                 goto arg_error;
                             em = em_am[0];
                             am = em_am[1];
                             break;
                         case 'w':
-                            int ew_aw[2];
+                            ;int ew_aw[2];
                             if (!test_lvl_args(ew_aw, argv, optind - 1))
                                 goto arg_error;
                             ew = ew_aw[0];
@@ -94,32 +93,37 @@ int main(int argc, char* argv[]) {
                     break;
 
                 case 1: // case for non-option arg input data
-                    if(!test_io(input_img_path, optarg))
+                    //not final yet we need to count each passed argument
+                    //such an error b 4 or v 89 must be handled correctly
+                    if(input_flag)
+                        goto arg_error;
+                    if (!test_io(input_img_path, optarg))
                         goto io_error;
+                    input_flag++;
                     break;
                 case 'o':
                 case 'O':
-                    if(!test_io(output_img_path, optarg))
+                    if (output_flag)
+                        goto arg_error;
+                    if (!test_io(output_img_path, optarg))
                         goto io_error;
-                    oflag++;
+                    output_flag++;
                     break;
                 case 'V':
                 case 'v':
-                    for (int i = 0; optarg[i] != '\0'; i++)
-                        if (!isdigit(optarg[i]))
-                            goto arg_error;
+                    if (vflag || !is_valid_digit(optarg, &varg))
+                        goto arg_error;
                     vflag++;
-                    varg = atoi(optarg);
                     break;
                 case 'B':
                 case 'b':
-                    if(optarg == NULL)
-                        break;
-                    for (int i = 0; optarg[i] != '\0'; i++)
-                        if(!isdigit(optarg[i]))
-                            goto arg_error;
+                    if (bflag)
+                        goto arg_error;
                     bflag++;
-                    barg = atoi(optarg);
+                    if (!optarg)
+                        break;
+                    if(is_valid_digit(optarg, &barg))
+                        goto arg_error;
                     break;
                 case 'h':
                 case 'H':
@@ -128,16 +132,25 @@ int main(int argc, char* argv[]) {
                     return EXIT_SUCCESS;
                 case '?':
                     goto arg_error;
-                    break;
             }
     }
+    printf("barg= %d\n", barg);
     //Default values setting
-    
 
     // cflag depends on the impl
-    // read image to array of pixel struct
+
+    // read image
+    goto img_error;
+
+
+
+
 
     return EXIT_SUCCESS;
+    img_error:
+        fprintf(stderr, "img_error\n");
+        return EXIT_FAILURE;
+
     io_error:
         fprintf(stderr, "io_error\n");
         return EXIT_FAILURE;
