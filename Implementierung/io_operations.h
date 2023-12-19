@@ -34,5 +34,6 @@ int is_valid_digit(const char* option_arg, int* valid_arg);
 int test_io(char* path, const char* arg);
 int read_img(const char* img_path, uint8_t* img, size_t* width, size_t* height);
 int test_args(double* dest, char* optarg);
+int write_pgm(const char *pgm_path, uint8_t* pixels,  size_t* width, size_t* height, int color_depth ) ;
 
 

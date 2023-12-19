@@ -57,7 +57,7 @@ int read_img(const char* img_path, uint8_t* img, size_t* width, size_t* height) 
     char img_version[2];
     size_t ret = fread(img_version, sizeof (*img_version), ARRAY_SIZE(img_version), fd);
     if (ret != ARRAY_SIZE(img_version)) return_defer(EXIT_FAILURE);
-    if (!strncmp(img_version, "P6", 2)) return_defer(EXIT_FAILURE);
+    if (img_version[0]!='P' || img_version[1]!='6') return_defer(EXIT_FAILURE);
     int color_depth = 0;
     fscanf(fd, "   %zu %zu   ", width, height);
     fscanf(fd, "  %i  ", &color_depth);
@@ -98,7 +98,32 @@ int test_args(double* dest, char* optarg) {
     
 }
 
-/*
- *
- */
 
+int write_pgm(const char *pgm_path, uint8_t* pixels,  size_t* width, size_t* height, int color_depth ) {
+    int result;
+
+    FILE *gfile = fopen(pgm_path, "wb");
+    if (!gfile) return_defer(EXIT_FAILURE);
+
+    struct stat statbuf;
+    if (stat(pgm_path, &statbuf)) return_defer(EXIT_FAILURE);
+    if (!S_ISREG(statbuf.st_mode) || statbuf.st_size <= 0) return_defer(EXIT_FAILURE);
+
+    // write  header
+    fprintf(gfile, "P5\n%zu %zu\n%i\n", width, height, color_depth);
+
+    pixels=(uint8_t*) malloc((*height) * (*width) * sizeof (uint8_t));
+    if (!pixels) return_defer(EXIT_MEM_FAILURE);
+
+    //graustufenkonvertierung methode here and calculated grey values saved in pixels
+
+    // write pixel values in pgm image
+    fwrite(pixels, sizeof(uint8_t*), (*width) * (*height), gfile);
+
+
+    defer:
+        free(pixels);
+        if (gfile) fclose(gfile);
+        if (errno) return EXIT_FAILURE;
+        return result;
+}
