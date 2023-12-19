@@ -41,25 +41,26 @@ int test_io(char* path, const char* arg) {
  */
 int read_img(const char* img_path, uint8_t* img, size_t width, size_t height) {
 
-
+return 0;
 
 }
 
 /*
  *
  */
-int test_lvl_args(int* dest, char* optarg) {
+int test_lvl_args(double* dest, char* optarg) {
     errno = 0;
     char* endptr;
 
-    dest[0] = (int) strtol(optarg, &endptr, 0);
+    dest[0] = strtod(optarg, &endptr);
+    
     if (endptr == optarg || *endptr != ',' || errno == ERANGE || dest[0]>255 || dest[0]<0)
         return EXIT_FAILURE;
     errno = 0;
-    dest[1] = (int) strtol(endptr+1, &endptr, 0);
+    dest[1] =  strtod(endptr+1, &endptr);
     if ( *endptr != '\0' || errno == ERANGE || dest[1]>255 || dest[1]<0)
-        return EXIT_FAILURE;    
-    return EXIT_SUCCESS;
+        return EXIT_FAILURE;
+    return EXIT_SUCCESS; 
 }
 
 /*
@@ -68,3 +69,4 @@ int test_lvl_args(int* dest, char* optarg) {
 int test_coeff_args(int* dest, char* args[], int position){
    return 0;
 }
+
