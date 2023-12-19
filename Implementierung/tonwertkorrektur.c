@@ -8,7 +8,7 @@
 #include <getopt.h>
 #include <stdbool.h>
 #include <unistd.h>
-#include "placeholder.h"
+#include "io_operations.h"
  
 void levels_adjustment(
         const uint8_t* img, size_t width, size_t height,
@@ -32,7 +32,8 @@ int main(int argc, char* argv[]) {
     int varg = 0, barg = 1;
     char input_img_path[256];
     char output_img_path[256];
-    int a, b, c, es, as, em, am, ew, aw;
+    int a, b, c ; 
+    double es, as, em, am, ew, aw;
 
     // Long Option flags
     static int cflag = 0, sflag = 0, mflag = 0, wflag =0;
@@ -57,29 +58,29 @@ int main(int argc, char* argv[]) {
                     switch (longopts[option_index].val) {
                         case 'c':
                             ;int coeff[3];
-                            if (cflag || !test_coeff_args(coeff, argv, optind - 1))
+                            if (cflag || !test_args(coeff, optarg))
                                 goto arg_error;
                             a = coeff[0];
                             b = coeff[1];
                             c = coeff[2];
                             break;
                         case 's':
-                            ;int es_as[2];
-                            if (sflag || !test_lvl_args(es_as, optarg))
+                            ;double es_as[2];
+                            if (sflag || !test_args(es_as, optarg))
                                 goto arg_error;
                             es = es_as[0];
                             as = es_as[1];
                             break;
                         case 'm':
-                            ;int em_am[2];
-                            if (mflag || !test_lvl_args(em_am, optarg))
+                            ;double em_am[2];
+                            if (mflag || !test_args(em_am, optarg))
                                 goto arg_error;
                             em = em_am[0];
                             am = em_am[1];
                             break;
                         case 'w':
-                            ;int ew_aw[2];
-                            if (wflag || !test_lvl_args(ew_aw, optarg))
+                            ;double ew_aw[2];
+                            if (wflag || !test_args(ew_aw, optarg))
                                 goto arg_error;
                             ew = ew_aw[0];
                             aw = ew_aw[1];
@@ -140,13 +141,22 @@ int main(int argc, char* argv[]) {
     // cflag depends on the impl
 
     // read image
-    goto img_error;
+    printf("input_path %s\n", input_img_path);
+    size_t width, height;
+    uint8_t img[0];
+    int ret = read_img(input_img_path, img, &width, &height);
+    if (ret >> 1) goto mem_error;
+    if (ret) goto img_error;
 
-
-
-
+    for(size_t i = 0; i < width * height; i++)
+        printf("%"PRIu8 , img[i]);
 
     return EXIT_SUCCESS;
+    
+    mem_error:
+        fprintf(stderr, "mem_error\n");
+        return EXIT_FAILURE;
+
     img_error:
         fprintf(stderr, "img_error\n");
         return EXIT_FAILURE;
