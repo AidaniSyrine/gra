@@ -65,21 +65,21 @@ int main(int argc, char* argv[]) {
                             break;
                         case 's':
                             ;int es_as[2];
-                            if (sflag || !test_lvl_args(es_as, argv, optind - 1))
+                            if (sflag || !test_lvl_args(es_as, optarg))
                                 goto arg_error;
                             es = es_as[0];
                             as = es_as[1];
                             break;
                         case 'm':
                             ;int em_am[2];
-                            if (mflag || !test_lvl_args(em_am, argv, optind - 1))
+                            if (mflag || !test_lvl_args(em_am, optarg))
                                 goto arg_error;
                             em = em_am[0];
                             am = em_am[1];
                             break;
                         case 'w':
                             ;int ew_aw[2];
-                            if (wflag || !test_lvl_args(ew_aw, argv, optind - 1))
+                            if (wflag || !test_lvl_args(ew_aw, optarg))
                                 goto arg_error;
                             ew = ew_aw[0];
                             aw = ew_aw[1];
