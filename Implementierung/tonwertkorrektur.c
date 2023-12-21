@@ -39,13 +39,14 @@ int main(int argc, char* argv[]) {
 
     // Long option structs
    static const struct option longopts[] = {
-        {"coeffs",  required_argument, &cflag, 'c'},
-        {"lvlss",   required_argument, &sflag,  's'},
-        {"lvlsm",   required_argument, &mflag, 'm'},
-        {"lvlsw",   required_argument, &wflag, 'w'},
-        {"help",    no_argument, 0, 'h'},
+        {"coeffs",  required_argument, NULL, 'c'},
+        {"lvlss",   required_argument, NULL,  's'},
+        {"lvlsm",   required_argument, NULL, 'm'},
+        {"lvlsw",   required_argument, NULL, 'w'},
+        {"help",    no_argument, NULL, 'h'},
         {0,0,0,0}
    };
+   
 
     /*
      * B takes optional option argument
@@ -56,6 +57,9 @@ int main(int argc, char* argv[]) {
                 case 0: //Handle longopts
                     switch (longopts[option_index].val) {
                         case 'c':
+                            if (cflag)
+                                goto arg_error;     
+                            cflag++;
                             ;double coeff[3];
                             if (test_args(coeff, optarg,3))
                                 goto arg_error;
@@ -64,6 +68,9 @@ int main(int argc, char* argv[]) {
                             c = coeff[2];
                             break;
                         case 's':
+                            if (sflag)
+                                goto arg_error;     
+                            sflag++;
                             ;double es_as[2];
                             if (test_args(es_as, optarg,2))
                                goto arg_error;
@@ -71,6 +78,9 @@ int main(int argc, char* argv[]) {
                             as = es_as[1];
                             break;
                         case 'm':
+                            if (mflag)
+                                goto arg_error;     
+                            mflag++;
                             ;double em_am[2];
                             if (test_args(em_am, optarg,2))
                                 goto arg_error;
@@ -78,6 +88,9 @@ int main(int argc, char* argv[]) {
                             am = em_am[1];
                             break;
                         case 'w':
+                            if (wflag)
+                                goto arg_error;     
+                            wflag++;
                             ;double ew_aw[2];
                             if (test_args(ew_aw, optarg,2))
                                 goto arg_error;
