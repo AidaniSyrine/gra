@@ -66,8 +66,6 @@ int main(int argc, char* argv[]) {
                             break;
                         case 's':
                             ;double es_as[2];
-                            printf("string \n");
-                            printf("string %s\n", optarg);
                             if (test_args(es_as, optarg,2))
                                goto arg_error;
                             es = es_as[0];
@@ -156,6 +154,7 @@ int main(int argc, char* argv[]) {
 
     //write
     printf("%d\n" ,output_flag );
+    
     if (output_flag) write_pgm(output_img_path,NULL,&width, &height, 255);
     else write_pgm(NULL,NULL,&width, &height, 255);
     return EXIT_SUCCESS;
