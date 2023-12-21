@@ -85,6 +85,7 @@ int read_img(const char* img_path, uint8_t* img, size_t* width, size_t* height) 
  */
 // test_lvl_args and test_coeff_args
 int test_args(double *dest, char* optarg, size_t arr_len ) {
+   printf("string %s\n", optarg);
     char* endptr;
     char* nptr=optarg;
     for (size_t i = 0; i < arr_len; i++){
