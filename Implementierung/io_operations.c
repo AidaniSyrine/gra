@@ -32,7 +32,7 @@ int test_and_set_largs(double* valid_args,const char** option_args, size_t num_a
     {
         errno = 0;
         valid_args[i] = strtod(tocken, &endptr);
-        if(endptr == tocken || *endptr != '\0' || errno == ERANGE)
+        if(endptr == tocken || *endptr != '\0' ||  valid_args[i] !=  valid_args[i] || errno == ERANGE)
             return EXIT_FAILURE;
     }
     if (i != num_args) return EXIT_FAILURE;
@@ -99,7 +99,32 @@ int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* hei
     return result;
 }
 
+int write_img(const char *pgm_path, uint8_t* pixels,  size_t width, size_t height, int color_depth, int flag ) {
 
+    // Open file
+    int result;
+    FILE *gfile;
+    if (!flag ) pgm_path="output.pgm";
+    gfile = fopen(pgm_path, "wb");
+    if (!gfile) return_defer(EXIT_FAILURE);
+
+    struct stat statbuf;
+    if (fstat(fileno_unlocked(gfile), &statbuf)) return_defer(EXIT_FAILURE);
+    //if (!S_ISREG(statbuf.st_mode) || statbuf.st_size <= 0) return_defer(EXIT_FAILURE);
+
+    // write  header
+    fprintf(gfile, "P5\n%zu %zu\n%i\n", width, height, color_depth);
+    if(ferror(gfile)) return_defer(EXIT_FAILURE);
+
+    // write pixel values in pgm image
+    printf ("%zu\n", fwrite(pixels, sizeof(uint8_t), height*width, gfile));
+    if(ferror(gfile)) return_defer(EXIT_FAILURE);   
+     
+    defer:
+        if (gfile) fclose(gfile);
+        if (errno) return EXIT_FAILURE;
+        return result;
+}
 
 
 void print_help(void){

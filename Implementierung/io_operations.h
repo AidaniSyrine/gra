@@ -87,7 +87,7 @@ int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* hei
  * @param flag
  * @return
  */
-int write_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t height, int flag);
+int write_img(const char* img_path, uint8_t* pix_map, size_t width, size_t height, int color_depth, int flag);
 
 
 
