@@ -17,8 +17,8 @@ int test_and_set_sarg(int* valid_arg, const char* option_arg) {
     return EXIT_SUCCESS;
 }
 
-
-int test_and_set_largs(double* valid_args,const char** option_args, size_t num_args) {
+//Next Update check for a_e... < 1B
+int test_and_set_largs(float * valid_args,const char** option_args, size_t num_args) {
     char* tocken;
     char* endptr;
     size_t i;
@@ -31,8 +31,8 @@ int test_and_set_largs(double* valid_args,const char** option_args, size_t num_a
         tocken = strtok_r(NULL, ",", &rest), i++)
     {
         errno = 0;
-        valid_args[i] = strtod(tocken, &endptr);
-        if(endptr == tocken || *endptr != '\0' || errno == ERANGE)
+        valid_args[i] = (float) strtod(tocken, &endptr);
+        if(endptr == tocken || *endptr != '\0' || valid_args[i] != valid_args[i] ||errno == ERANGE)
             return EXIT_FAILURE;
     }
     if (i != num_args) return EXIT_FAILURE;
@@ -49,7 +49,7 @@ int test_and_set_io(char* path, const char* arg) {
 }
 
 
-int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* height) {
+int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* height, uint8_t* color_depth) {
 
     // Open file
     int result;
@@ -71,15 +71,14 @@ int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* hei
     ascii_data += 2;
 
     // If exists, ignore comments
-     if (ascii_data[0] == '#')
+     while (ascii_data[0] == '#')
          ascii_data = strchr(ascii_data, '\n');
      ascii_data++;
 
      // Read width, height, and color depth, assuming them to be valid digits
-    uint8_t color_depth;
-    if(sscanf(ascii_data, "%zu %zu\n%hhu", width, height, &color_depth) != 3) return_defer(EXIT_FAILURE);  // NOLINT(*-err34-c)
-    if (color_depth < 0 || color_depth > 255) return_defer(EXIT_FAILURE);
 
+    if(sscanf(ascii_data, "%zu %zu\n%hhu", width, height, color_depth) != 3) return_defer(EXIT_FAILURE);  // NOLINT(*-err34-c)
+    if (*color_depth < 0 || *color_depth > 255) return_defer(EXIT_FAILURE);
     // Move the pointer toward the first pixel
     ascii_data = strchr(ascii_data, '\n');
     ascii_data++;
@@ -99,6 +98,9 @@ int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* hei
     return result;
 }
 
+int write_img(const char *img_path, uint8_t* pix_map,  size_t width, size_t height, uint8_t color_depth, int flag) {
+    return 0;
+}
 
 
 
