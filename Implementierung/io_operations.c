@@ -84,13 +84,13 @@ int read_img(const char* img_path, uint8_t* img, size_t* width, size_t* height) 
  *
  */
 // test_lvl_args and test_coeff_args
-int test_args(double* dest, char* optarg) {
+int test_args(double *dest, char* optarg, size_t arr_len ) {
     char* endptr;
     char* nptr=optarg;
-    for (size_t i = 0; i < sizeof(dest); i++){
+    for (size_t i = 0; i < arr_len; i++){
         errno = 0;
         dest[i] = strtod(nptr, &endptr);
-        if (endptr == optarg || (i< (sizeof(dest)-1) && *endptr != ',') || (i== sizeof(dest)-1 && *endptr != '\0') || errno == ERANGE || dest[0]>255 || dest[0]<0)
+        if (endptr == nptr || dest[i]>255 || dest[i]<0|| dest[i]!=dest[i] ||  (i< (arr_len-1) && *endptr != ',') || (i== arr_len-1 && *endptr != '\0') || errno == ERANGE )
         return EXIT_FAILURE;
         nptr=endptr+1;
     }
@@ -100,30 +100,32 @@ int test_args(double* dest, char* optarg) {
 
 
 int write_pgm(const char *pgm_path, uint8_t* pixels,  size_t* width, size_t* height, int color_depth ) {
-    int result;
+     printf("ouput_path %s\n", pgm_path);
 
-    FILE *gfile = fopen(pgm_path, "wb");
+    int result;
+    FILE *gfile;
+    if (pgm_path == NULL) {
+        gfile = fopen("output.pgm", "wb");
+    } else {
+        gfile = fopen(pgm_path, "wb");
+    }
+
     if (!gfile) return_defer(EXIT_FAILURE);
 
     struct stat statbuf;
-    if (stat(pgm_path, &statbuf)) return_defer(EXIT_FAILURE);
-    if (!S_ISREG(statbuf.st_mode) || statbuf.st_size <= 0) return_defer(EXIT_FAILURE);
+    if (fstat(fileno_unlocked(gfile), &statbuf)) return_defer(EXIT_FAILURE);
+    //if (!S_ISREG(statbuf.st_mode) || statbuf.st_size <= 0) return_defer(EXIT_FAILURE);
 
     // write  header
-    fprintf(gfile, "P5\n%zu %zu\n%i\n", width, height, color_depth);
-
-    pixels=(uint8_t*) malloc((*height) * (*width) * sizeof (uint8_t));
-    if (!pixels) return_defer(EXIT_MEM_FAILURE);
-
-    //graustufenkonvertierung methode here and calculated grey values saved in pixels
+    fprintf(gfile, "P5\n%zu %zu\n%i\n", *width, *height, color_depth);
 
     // write pixel values in pgm image
-    fwrite(pixels, sizeof(uint8_t*), (*width) * (*height), gfile);
+   // fwrite(pixels, sizeof(uint8_t*), (*width) * (*height), gfile);
 
 
     defer:
-        free(pixels);
         if (gfile) fclose(gfile);
         if (errno) return EXIT_FAILURE;
         return result;
 }
+

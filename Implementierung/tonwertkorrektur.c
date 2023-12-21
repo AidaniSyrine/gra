@@ -32,8 +32,7 @@ int main(int argc, char* argv[]) {
     int varg = 0, barg = 1;
     char input_img_path[256];
     char output_img_path[256];
-    int a, b, c ; 
-    double es, as, em, am, ew, aw;
+    double a, b, c , es, as, em, am, ew, aw;
 
     // Long Option flags
     static int cflag = 0, sflag = 0, mflag = 0, wflag =0;
@@ -57,8 +56,8 @@ int main(int argc, char* argv[]) {
                 case 0: //Handle longopts
                     switch (longopts[option_index].val) {
                         case 'c':
-                            ;int coeff[3];
-                            if (cflag || !test_args(coeff, optarg))
+                            ;double coeff[3];
+                            if (test_args(coeff, optarg,3))
                                 goto arg_error;
                             a = coeff[0];
                             b = coeff[1];
@@ -66,21 +65,21 @@ int main(int argc, char* argv[]) {
                             break;
                         case 's':
                             ;double es_as[2];
-                            if (sflag || !test_args(es_as, optarg))
-                                goto arg_error;
+                            if (test_args(es_as, optarg,2))
+                               goto arg_error;
                             es = es_as[0];
                             as = es_as[1];
                             break;
                         case 'm':
                             ;double em_am[2];
-                            if (mflag || !test_args(em_am, optarg))
+                            if (test_args(em_am, optarg,2))
                                 goto arg_error;
                             em = em_am[0];
                             am = em_am[1];
                             break;
                         case 'w':
                             ;double ew_aw[2];
-                            if (wflag || !test_args(ew_aw, optarg))
+                            if (test_args(ew_aw, optarg,2))
                                 goto arg_error;
                             ew = ew_aw[0];
                             aw = ew_aw[1];
@@ -141,7 +140,6 @@ int main(int argc, char* argv[]) {
     // cflag depends on the impl
 
     // read image
-    printf("input_path %s\n", input_img_path);
     size_t width, height;
     uint8_t img[0];
     int ret = read_img(input_img_path, img, &width, &height);
@@ -150,9 +148,17 @@ int main(int argc, char* argv[]) {
 
     for(size_t i = 0; i < width * height; i++)
         printf("%"PRIu8 , img[i]);
+    
+    
+
+    //write
+    printf("%d\n" ,output_flag );
+     uint8_t pixels[0];
+    if(output_flag) write_pgm(output_img_path,pixels,&width, &height, 255);
+    else write_pgm(NULL,pixels,&width, &height, 255);
 
     return EXIT_SUCCESS;
-    
+
     mem_error:
         fprintf(stderr, "mem_error\n");
         return EXIT_FAILURE;
