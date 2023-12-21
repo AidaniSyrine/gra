@@ -1,8 +1,6 @@
 //
 // Created by tade on 12/16/23.
 //
-
-//Header Guards
 #pragma once
 
 #include <stdio.h>
@@ -12,22 +10,86 @@
 #include <unistd.h>
 #include <errno.h>
 #include <inttypes.h>
+#include <sys/mman.h>
+#include <sys/fcntl.h>
 
-#define ES 0
-#define AS 0
-#define EW = 255
-#define AW 255
+#define ES  0      /*Standard Black Input "Eingabe Schwarz"*/
+#define AS  0      /*Standard Black Output "Ausgabe Schwarz"*/
+#define EW  255    /*Standard White Input "Eingabe Schwarz"*/
+#define AW  255    /*Standard White Output "Ausgabe Schwarz"*/
+
+/*  Facilitate Cleanup */
 #define return_defer(value) do { result = (value); goto defer; } while (0)
+
+/* Compute the size of array */
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(*arr))
+
+/* Indicate occurrence of memory allocation error */
 #define EXIT_MEM_FAILURE 2
 
 
-void print_help();
-int is_valid_digit(const char* option_arg, int* valid_arg);
-int test_io(char* path, const char* arg);
-int read_img(const char* img_path, uint8_t* img, size_t* width, size_t* height);
-int test_coeff_args(int* dest, char* args[], int position);
-int test_lvl_args(int* dest, char* args[], int position);
 
 
+/**
+ * Test whether the option_arg is a valid digit
+ * Convert it to int and store it in valid_arg
+ * @param option_arg Option argument
+ * @param valid_arg Converted option argument
+ * @return EXIT_SUCCESS conversion successful
+ * @return EXIT_FAILURE otherwise
+ */
+int test_and_set_sarg(int* valid_arg, const char* option_arg);
+
+
+/**
+ * __COMMENT__
+ * @param valid_args
+ * @param option_args
+ * @param num_args
+ * @return
+ */
+int test_and_set_largs(double* valid_args, const char**  option_args, size_t num_args);
+
+
+/**
+ * __COMMENT__
+ * @param path
+ * @param arg
+ * @return
+ */
+int test_and_set_io(char* path, const char* arg);
+
+
+/**
+ * Load the image to the virtual address space
+ * Check whether the image has P6 graphic format
+ * Read the meta data
+ * Point to PixMap
+ * @param img_path File's path
+ * @param pix_map Pointer to PixMap array
+ * @param width  Pointer to PixMap's width in pixels
+ * @param height Pointer to PixMap's height in pixels
+ * @return EXIT_FAILURE  Image status | Format not compatible
+ * @return EXIT_MEM_FAILURE Memory mapping failed
+ * @return EXIT_SUCCESS Image read and processed
+ * @Note width and height consists of the image
+ * dimensions in pixels NOT in Bytes
+ */
+int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* height);
+
+
+/**
+ * __COMMENT__
+ * @param img_path
+ * @param pix_map
+ * @param width
+ * @param height
+ * @param flag
+ * @return
+ */
+int write_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t height, int flag);
+
+
+
+void print_help(void);
 
