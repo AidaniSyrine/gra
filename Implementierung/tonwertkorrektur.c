@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
         {"help",    no_argument, NULL, 'h'},
         {0,0,0,0}
    };
-   
+     
 
     /*
      * B takes optional option argument
