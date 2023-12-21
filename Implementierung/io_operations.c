@@ -104,7 +104,7 @@ int write_img(const char *pgm_path, uint8_t* pixels,  size_t width, size_t heigh
     // Open file
     int result;
     FILE *gfile;
-    if (!flag ) pgm_path="output.pgm";
+    if (!flag ) pgm_path="./images/output.pgm";
     gfile = fopen(pgm_path, "wb");
     if (!gfile) return_defer(EXIT_FAILURE);
 
