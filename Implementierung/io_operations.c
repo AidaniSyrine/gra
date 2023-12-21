@@ -104,12 +104,8 @@ int write_pgm(const char *pgm_path, uint8_t* pixels,  size_t* width, size_t* hei
 
     int result;
     FILE *gfile;
-    if (pgm_path == NULL) {
-        gfile = fopen("output.pgm", "wb");
-    } else {
-        gfile = fopen(pgm_path, "wb");
-    }
-
+    if (!pgm_path ) pgm_path="output.pgm";
+    gfile = fopen(pgm_path, "wb");
     if (!gfile) return_defer(EXIT_FAILURE);
 
     struct stat statbuf;
@@ -118,10 +114,13 @@ int write_pgm(const char *pgm_path, uint8_t* pixels,  size_t* width, size_t* hei
 
     // write  header
     fprintf(gfile, "P5\n%zu %zu\n%i\n", *width, *height, color_depth);
+    if(ferror(gfile)) return_defer(EXIT_FAILURE);
 
     // write pixel values in pgm image
-   // fwrite(pixels, sizeof(uint8_t*), (*width) * (*height), gfile);
-
+    /*
+    fwrite(pixels, sizeof(uint8_t*), (*width) * (*height), gfile);
+    if(ferror(gfile)) return_defer(EXIT_FAILURE);   
+    */
 
     defer:
         if (gfile) fclose(gfile);

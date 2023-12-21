@@ -149,13 +149,12 @@ int main(int argc, char* argv[]) {
     for(size_t i = 0; i < width * height; i++)
         printf("%"PRIu8 , img[i]);
     
-    
+    //grey levels conversion
 
     //write
     printf("%d\n" ,output_flag );
-     uint8_t pixels[0];
-    if(output_flag) write_pgm(output_img_path,pixels,&width, &height, 255);
-    else write_pgm(NULL,pixels,&width, &height, 255);
+    if (output_flag) write_pgm(output_img_path,NULL,&width, &height, 255);
+    else write_pgm(NULL,NULL,&width, &height, 255);
 
     return EXIT_SUCCESS;
 
