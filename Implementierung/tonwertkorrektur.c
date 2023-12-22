@@ -7,10 +7,10 @@
 
 static int cflag = 0, sflag = 0, mflag = 0, wflag =0;
 static const struct option longopts[] = {
-        {"coeffs",  required_argument, &cflag, 'c'},
-        {"lvlss",   required_argument, &sflag,  's'},
-        {"lvlsm",   required_argument, &mflag, 'm'},
-        {"lvlsw",   required_argument, &wflag, 'w'},
+        {"coeffs",  required_argument, 0, 'c'},
+        {"lvlss",   required_argument, 0,  's'},
+        {"lvlsm",   required_argument, 0, 'm'},
+        {"lvlsw",   required_argument, 0, 'w'},
         {"help",    no_argument, 0, 'h'},
         {0,0,0,0}
 };
@@ -41,32 +41,30 @@ int main(int argc, char* argv[]) {
     double a, b, c, es, as, em, am, ew, aw;
 
    // Read options
-    while((option = getopt_long(argc, argv, "-HO:V:B::ho:v:b::", longopts, &option_index)) != EOF) {
+    while((option = getopt_long(argc, argv, "-HO:V:B::ho:v:b::c:s:m:w:", longopts, &option_index)) != EOF) {
             switch(option) {
-                //check double
+                //longopt
+                case 'c':
+                    if (cflag || test_and_set_largs(valid_args, (const char **) &optarg, 3)) goto arg_error;
+                    cflag++;
+                    a = valid_args[0]; b = valid_args[1]; c = valid_args[2];
+                    break;
+                case 's':
+                    if (sflag || test_and_set_largs(valid_args, (const char **) &optarg, 2)) goto arg_error;
+                    sflag++;
+                    es = valid_args[0]; as = valid_args[1];
+                    break;
+                case 'm':
+                    if (mflag || test_and_set_largs(valid_args, (const char **) &optarg, 2)) goto arg_error;
+                    mflag++;
+                    em = valid_args[0]; am = valid_args[1];
+                    break;
+                case 'w':
+                    if (wflag || test_and_set_largs(valid_args, (const char **) &optarg, 2)) goto arg_error;
+                    wflag++;
+                    ew = valid_args[0]; aw = valid_args[1];
+                    break;
                 //Next update
-                case 0: // Handle longopts
-                    switch (longopts[option_index].val) {
-                        case 'c':
-                            if (test_and_set_largs(valid_args, (const char **) &optarg, 3)) goto arg_error;
-                            a = valid_args[0]; b = valid_args[1]; c = valid_args[2];
-                            break;
-                        case 's':
-                            if (test_and_set_largs(valid_args, (const char **) &optarg, 2)) goto arg_error;
-                            es = valid_args[0]; as = valid_args[1];
-                            break;
-                        case 'm':
-                            if (test_and_set_largs(valid_args, (const char **) &optarg, 2)) goto arg_error;
-                            em = valid_args[0]; am = valid_args[1];
-                            break;
-                        case 'w':
-                            if (test_and_set_largs(valid_args, (const char **) &optarg, 2)) goto arg_error;
-                            ew = valid_args[0]; aw = valid_args[1];
-                            break;
-                        case '?':
-                            puts("UNREACHABLE");
-                            return EXIT_FAILURE;
-                    } break;
                 case 1: // Non-option arg input file
                     if(input_flag) goto arg_error;
                     if (test_and_set_io(input_img_path, optarg)) goto io_error;
