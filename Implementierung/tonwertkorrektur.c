@@ -24,8 +24,8 @@ void levels_adjustment(
         uint8_t* result
         );
 
-
 int main(int argc, char* argv[]) {
+
     // get-opt variables
     int option_index = 0;
     int option;

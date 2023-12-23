@@ -99,9 +99,27 @@ int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* hei
 }
 
 int write_img(const char *img_path, uint8_t* pix_map,  size_t width, size_t height, uint8_t color_depth, int flag) {
-    return 0;
-}
+    
+    // Open file
+     int result;
+    FILE *gfile;
+    if (!flag ) img_path ="output.pgm";
+    gfile = fopen(img_path, "wb");
+    if (!gfile) return_defer(EXIT_FAILURE);
 
+     // write  header
+     fprintf(gfile, "P5\n%zu %zu\n%i\n", width, height, color_depth);
+    if(ferror(gfile)) return_defer(EXIT_FAILURE);
+
+     // write pixel values in pgm image
+     printf ("%zu\n", fwrite(pix_map, sizeof(uint8_t), height*width, gfile));
+    if(ferror(gfile)) return_defer(EXIT_FAILURE);    
+     
+    defer:
+        if (gfile) fclose(gfile);
+        if (errno) return EXIT_FAILURE;
+        return result;
+}
 
 
 void print_help(void){
