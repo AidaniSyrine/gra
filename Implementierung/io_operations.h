@@ -18,6 +18,7 @@
 #define AS  0      /*Standard Black Output "Ausgabe Schwarz"*/
 #define EW  255    /*Standard White Input "Eingabe Schwarz"*/
 #define AW  255    /*Standard White Output "Ausgabe Schwarz"*/
+#define DEFAULT_OUTPUT_PATH "./images/output.pgm"
 
 /*  Facilitate Cleanup */
 #define return_defer(value) do { result = (value); goto defer; } while (0)
@@ -49,7 +50,7 @@ int test_and_set_sarg(int* valid_arg, const char* option_arg);
  * @param num_args
  * @return
  */
-int test_and_set_largs(float* valid_args, const char**  option_args, size_t num_args);
+int test_and_set_largs(void* valid_args, const char**  option_args, int flag);
 
 
 /**
@@ -88,7 +89,7 @@ int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* hei
  * @param flag
  * @return
  */
-int write_img(const char* img_path, uint8_t* pix_map, size_t width, size_t height, uint8_t color_depth, int flag);
+int write_img(const char* img_path, const uint8_t* pix_map, size_t width, size_t height, uint8_t color_depth, int flag);
 
 
 

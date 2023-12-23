@@ -17,8 +17,9 @@ int test_and_set_sarg(int* valid_arg, const char* option_arg) {
     return EXIT_SUCCESS;
 }
 
-//Next Update check for a_e... < 1B
-int test_and_set_largs(float * valid_args,const char** option_args, size_t num_args) {
+
+
+int test_and_set_largs(void* valid_args, const char** option_args, int flag) {
     char* tocken;
     char* endptr;
     size_t i;
@@ -31,11 +32,19 @@ int test_and_set_largs(float * valid_args,const char** option_args, size_t num_a
         tocken = strtok_r(NULL, ",", &rest), i++)
     {
         errno = 0;
-        valid_args[i] = (float) strtod(tocken, &endptr);
-        if(endptr == tocken || *endptr != '\0' || valid_args[i] != valid_args[i] ||errno == ERANGE)
+        float tmp = strtof(tocken, &endptr);
+
+        if(endptr == tocken || *endptr != '\0' ||errno == ERANGE)
             return EXIT_FAILURE;
+
+        if (flag == 'c') {
+            if (i > 2 || tmp < 0) return EXIT_FAILURE;
+            ((float *) valid_args)[i] = tmp;
+        } else {
+            if (i > 1 || tmp > 255 || tmp < 0) return EXIT_FAILURE;
+            ((uint8_t *) valid_args)[i] = (uint8_t) tmp;
+        }
     }
-    if (i != num_args) return EXIT_FAILURE;
     return EXIT_SUCCESS;
 }
 
@@ -98,8 +107,28 @@ int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* hei
     return result;
 }
 
-int write_img(const char *img_path, uint8_t* pix_map,  size_t width, size_t height, uint8_t color_depth, int flag) {
-    return 0;
+int write_img(const char *img_path, const uint8_t* pix_map,  size_t width, size_t height, uint8_t color_depth, int flag) {
+    // Open file
+    int result;
+    FILE *f;
+    if (!flag) img_path = DEFAULT_OUTPUT_PATH;
+    f = fopen(img_path, "wb");
+    if (!f) return_defer(EXIT_FAILURE);
+
+
+    // Write the corresponding header
+    fprintf(f, "P5\n%zu %zu\n%i\n", width, height, color_depth);
+    if(ferror(f)) return_defer(EXIT_FAILURE);
+
+    // Load pix_map to the file
+    fwrite(pix_map, sizeof(uint8_t), height * width, f);
+    if(ferror(f)) return_defer(EXIT_FAILURE);
+
+    //Cleanup
+    defer:
+    if (f) fclose(f);
+    if (errno) return EXIT_FAILURE;
+    return result;
 }
 
 
