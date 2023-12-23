@@ -37,8 +37,9 @@ int main(int argc, char* argv[]) {
     int varg = 0, barg = 0;
     char input_img_path[512];
     char output_img_path[512];
-    double valid_args[3];
-    double a, b, c, es, as, em, am, ew, aw;
+    float valid_args[3];
+    float a, b, c;
+    uint8_t es, as, em, am, ew, aw;
 
    // Read options
     while((option = getopt_long(argc, argv, "-HO:V:B::ho:v:b::c:s:m:w:", longopts, &option_index)) != EOF) {
@@ -104,21 +105,21 @@ int main(int argc, char* argv[]) {
 
     // read image
     size_t width, height;
-    uint8_t *img_ptr = NULL;
-    int ret = read_img(input_img_path, &img_ptr, &width, &height);
+    uint8_t color_depth, *img_ptr = NULL;
+    int ret = read_img(input_img_path, &img_ptr, &width, &height, &color_depth);
     if (ret == EXIT_MEM_FAILURE) goto mem_error;
     if (ret == EXIT_FAILURE) goto img_error;
     if (cflag) {
         printf("a= %f, b= %f ,c= %f\n", a, b, c);
     }
     if (sflag) {
-        printf("es= %f, as= %f\n", es, as);
+        printf("es= %hhu, as= %hhu\n", es, as);
     }
     if (wflag) {
-        printf("ew= %f, aw= %f\n", ew, aw);
+        printf("ew= %hhu, aw= %hhu\n", ew, aw);
     }
     if(mflag) {
-        printf("em= %f, am= %f\n", em, am);
+        printf("em= %hhu, am= %hhu\n", em, am);
     }
 
     //write image

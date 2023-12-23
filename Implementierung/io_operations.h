@@ -1,6 +1,7 @@
 //
 // Created by tade on 12/16/23.
 //
+
 #pragma once
 
 #include <stdio.h>
@@ -48,7 +49,7 @@ int test_and_set_sarg(int* valid_arg, const char* option_arg);
  * @param num_args
  * @return
  */
-int test_and_set_largs(double* valid_args, const char**  option_args, size_t num_args);
+int test_and_set_largs(float* valid_args, const char**  option_args, size_t num_args);
 
 
 /**
@@ -75,7 +76,7 @@ int test_and_set_io(char* path, const char* arg);
  * @Note width and height consists of the image
  * dimensions in pixels NOT in Bytes
  */
-int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* height);
+int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* height, uint8_t* color_depth);
 
 
 /**
@@ -87,7 +88,7 @@ int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* hei
  * @param flag
  * @return
  */
-int write_img(const char* img_path, uint8_t* pix_map, size_t width, size_t height, int color_depth, int flag);
+int write_img(const char* img_path, uint8_t* pix_map, size_t width, size_t height, uint8_t color_depth, int flag);
 
 
 
