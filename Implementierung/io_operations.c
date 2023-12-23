@@ -108,10 +108,6 @@ int write_img(const char *pgm_path, uint8_t* pixels,  size_t width, size_t heigh
     gfile = fopen(pgm_path, "wb");
     if (!gfile) return_defer(EXIT_FAILURE);
 
-    struct stat statbuf;
-    if (fstat(fileno_unlocked(gfile), &statbuf)) return_defer(EXIT_FAILURE);
-    //if (!S_ISREG(statbuf.st_mode) || statbuf.st_size <= 0) return_defer(EXIT_FAILURE);
-
     // write  header
     fprintf(gfile, "P5\n%zu %zu\n%i\n", width, height, color_depth);
     if(ferror(gfile)) return_defer(EXIT_FAILURE);
