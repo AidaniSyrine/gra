@@ -66,3 +66,5 @@ thumbs.db
 # Ignore .uuid file
 .uuid
 
+# Ignore output img
+*.pgm
