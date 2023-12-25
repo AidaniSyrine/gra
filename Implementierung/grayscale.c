@@ -18,7 +18,7 @@ uint8_t* img_to_grey_scale(uint8_t* pix_map, int width, int height, float a, flo
     const __m128 c_coeff = _mm_set_ps(c,c,c,c);
     const __m128 div = _mm_set_ps(a+b+c,a+b+c,a+b+c,a+b+c);
     
-    size_t i,k,s; 
+    size_t i,s; 
 
     for (; i*12<=num_pix-12;i+=12, s+=4){
 
@@ -35,8 +35,10 @@ uint8_t* img_to_grey_scale(uint8_t* pix_map, int width, int height, float a, flo
         // divide the sum by (a+b+c)
        __m128 result  = _mm_div_ps(_mm_add_ps(a_col, _mm_add_ps(b_col, c_col)), div);
        //store the 4 calculated values in grey_map
-       for(; k<4 && s+k<width * height ; k++){
+       
+       for(size_t k=0; k<4 && s+k<width * height ; k++){
         gray_map[s+k] = (uint8_t) result[k];
+
        }
        
     }
