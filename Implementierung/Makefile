@@ -30,7 +30,7 @@ ubsan: $(SOURCE)
 lsan: $(SOURCE)
 	$(CC) $^ -o $@.out -std=c11 -O0 $(WFLAGS) -Werror -fsanitize=leak
 
-# Compile with GCC static Analysis enabled
+# Compile with GCC static Analysis enabled (Test Phase)
 staticana: $(SOURCE)
 	$(CC) $^ -o $@.out -std=c11 -O0 $(WFLAGS) -Werror -fanalyzer
 

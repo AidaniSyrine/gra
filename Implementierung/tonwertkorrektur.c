@@ -3,6 +3,8 @@
 //
 #include <getopt.h>
 #include "io_operations.h"
+#include "grayscale.h"
+#include "adjustment.h"
 
 
 static int cflag = 0, sflag = 0, mflag = 0, wflag =0;
@@ -72,7 +74,6 @@ int main(int argc, char* argv[]) {
                     if(input_flag) goto arg_error;
                     if (test_and_set_io(input_img_path, optarg)) goto io_error;
                     input_flag++;
-                    printf("input = %s\n", input_img_path);
                     break;
                 case 'o': case 'O':
                     if (output_flag) goto arg_error;
@@ -109,6 +110,10 @@ int main(int argc, char* argv[]) {
     if (!sflag) es = ES; as = AS;
     if (!mflag) em = (ES + AW) / 2; am = (AS + AW) / 2;
     if (!wflag) ew = EW; aw =AW;
+    // Check if es < em < ew & as < am < ew
+    if (es > ew || es> em || ew < em || as > aw || as > am || aw < am) goto arg_error;
+
+
 
     // Read image
     size_t width, height;
@@ -118,8 +123,6 @@ int main(int argc, char* argv[]) {
     if (ret == EXIT_FAILURE) goto img_error;
 
 
-
-
     /*
      * a, b, c depens on --coeffs If not, on varg aka. chosen implemtation
      * By definition -v0 is the main entry point
@@ -127,13 +130,24 @@ int main(int argc, char* argv[]) {
      * Convert image (Gray scale + conversion) then write the image
      */
 
+    uint8_t* gray_map = (uint8_t *) malloc(width * height);
+    if (!gray_map) goto mem_error;
 
-    write_img(output_img_path, pix_map, width, height, 255, output_flag);
+    { // Adjustements
+        img_to_gray_scale(gray_map, pix_map, width, height, A, B, C);
+        quadratic_interpolation_Newton(gray_map, width, height, es, as, em, am, ew, aw);
+    }
 
-    //Unmap the allocated mem
+    // Write
+    write_img(output_img_path, gray_map, width, height, 255, output_flag);
+
+    // Cleanup
+    free(gray_map);
     munmap(pix_map, (width * height * 3));
     return EXIT_SUCCESS;
 
+
+    // Next Update: cleanup case mem or img_error
     mem_error:
         fprintf(stderr, "mem_error\n");
         return EXIT_FAILURE;
