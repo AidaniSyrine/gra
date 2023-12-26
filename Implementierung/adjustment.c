@@ -1,0 +1,163 @@
+//
+// Created by Adem Trabelsi on 21.12.23.
+//
+#include <stdio.h>
+#include "adjustment.h"
+
+// Next Update SIMD
+void linear_interpolation(uint8_t* gray_map, size_t width, size_t height,
+                              uint8_t es, uint8_t as, uint8_t em,
+                              uint8_t am, uint8_t ew, uint8_t aw)
+{
+   for(size_t i = 0; i < width * height; i++) {
+       if (gray_map[i] <= es) gray_map[i] = as;
+       else if (gray_map[i] >= ew) gray_map[i] = aw;
+       else if (gray_map[i] <= em)
+           gray_map[i] = as +  ((am - as) / (em - es)) * (gray_map[i] - es);
+       else
+           gray_map[i] = am + ((aw - am) / (ew - em)) * (gray_map[i] - em);
+   }
+}
+
+void linear_interpolation_SIMD(uint8_t* gray_map, size_t width, size_t height,
+                              uint8_t es, uint8_t as, uint8_t em,
+                              uint8_t am, uint8_t ew, uint8_t aw)
+{
+    __m128i simd_es = _mm_set1_epi8(es);
+    __m128i simd_as = _mm_set1_epi8(as);
+    __m128i simd_em = _mm_set1_epi8(em);
+    __m128i simd_am = _mm_set1_epi8(am);
+    __m128i simd_ew = _mm_set1_epi8(ew);
+    __m128i simd_factor1 = _mm_set1_epi8((am - as) / (em - es));
+    __m128i simd_factor2 = _mm_set1_epi8((aw - am) / (ew - em));
+
+    size_t size = width * height ;
+    size_t i ;
+    for (; i < (size- size%16); i += 16) {
+        __m128i simd_gray = _mm_loadu_si128(gray_map+i);
+        // change bytes <es to es
+        __m128i mask_es = _mm_cmplt_epi8(simd_gray, simd_es);
+        __m128i result = _mm_blendv_epi8(simd_gray,simd_es,  mask_es);
+        // change bytes >ew to ew
+        __m128i mask_ew = _mm_cmpgt_epi8(result, simd_ew);
+        result = _mm_blendv_epi8(result,simd_ew, mask_ew);
+        
+        // register of adequat factors
+        __m128i mask_ltem =_mm_cmplt_epi8(result, simd_em);
+        __m128i factors = _mm_and_si128(mask_ltem, simd_factor1 ) ;
+        __m128i mask_getem =_mm_andnot_si128(mask_ltem, _mm_set1_epi8(0xff));
+        factors = _mm_or_si128(factors, _mm_and_si128(mask_getem, simd_factor2 ) );
+
+        // register of adequat constant to be added
+        __m128i constants = _mm_and_si128(mask_ltem, simd_as ) ;
+        constants = _mm_or_si128(factors, _mm_and_si128(mask_getem, simd_am ) );
+
+        // first 8 bytes
+        __m128i final_result1 = _mm_maddubs_epi16(_mm_unpacklo_epi8(result, _mm_setzero_si128()) , _mm_unpacklo_epi8(factors, _mm_setzero_si128()));
+        __m128i final_result2 = _mm_maddubs_epi16(_mm_unpackhi_epi8(result, _mm_setzero_si128()) , _mm_unpackhi_epi8(factors, _mm_setzero_si128()));
+        final_result1 = _mm_packus_epi16 (final_result1,final_result2);
+        
+        // add constant 
+        final_result1 = _mm_add_epi8(final_result1, constants);
+
+        // Convert back to uint8_t and store the result
+        _mm_storeu_si128((__m128i*) (gray_map + i) ,final_result1);
+    }
+
+    for(; i < width * height; i++) {
+       if (gray_map[i] <= es) gray_map[i] = as;
+       else if (gray_map[i] >= ew) gray_map[i] = aw;
+       else if (gray_map[i] <= em)
+           gray_map[i] = as +  ((am - as) / (em - es)) * (gray_map[i] - es);
+       else
+           gray_map[i] = am + ((aw - am) / (ew - em)) * (gray_map[i] - em);
+   }
+}
+
+void bilinear_interpolation(uint8_t* gray_map, size_t width, size_t height,
+                                uint8_t es, uint8_t as, uint8_t em,
+                                uint8_t am, uint8_t ew, uint8_t aw) {
+}
+
+// Next Update SIMD
+void quadratic_interpolation_LS(uint8_t* gray_map, size_t width, size_t height,
+                              uint8_t es, uint8_t as, uint8_t em,
+                              uint8_t am, uint8_t ew, uint8_t aw) {
+
+    // Solving LS using Gaussian Elimination
+    int s1 = ((as - aw) * (es - ew) - (as - aw) * (es - em))
+            / ((es * es - em * em) * (es - ew) - (es * es-ew * ew) * (es - em));
+    int s2 = ((as - am) * (es - ew) - s1 * (es * es - em * em) * (es - ew))
+            / ((es - em) * (es - ew));
+    int s3 = as - s1 * es * es - s2 * es;
+
+    for (size_t i = 0; i< width * height; i++) {
+        if (gray_map[i] <= es) gray_map[i] = as;
+        else if (gray_map[i] >= ew) gray_map[i] = aw;
+        else gray_map[i] = s1 * gray_map[i] * gray_map[i] + s2 * gray_map[i] + s3;
+    }
+}
+
+void quadratic_interpolation_Lagrange(uint8_t* gray_map, size_t width, size_t height,
+                                       uint8_t es, uint8_t as, uint8_t em,
+                                       uint8_t am, uint8_t ew, uint8_t aw) {
+    // Just for code readability and convenience
+    uint8_t x[] = {es, em, ew};
+    uint8_t y[] = {as, am, aw};
+    uint8_t polynome;
+
+    for(size_t z = 0; z < width * height; z++) {
+        for(int i = 0; i < 3; i++) {
+            polynome = 1;
+            for(int j = 0; j < 3; j++) {
+                // Lagrange polynomial
+                if(i == j) continue;
+                polynome = (polynome / (x[i]  - x[j])) * (gray_map[z] - x[j]) ;
+            }
+            gray_map[z] += (uint8_t) y[i] * polynome;
+        }
+    }
+}
+
+
+void quadratic_interpolation_Newton(uint8_t* gray_map, size_t width, size_t height,
+                                    uint8_t es, uint8_t as, uint8_t em,
+                                    uint8_t am, uint8_t ew, uint8_t aw) {
+
+    // Just for code readability and convenience
+    uint8_t x[] = {es, em, ew};
+    uint8_t diff_table[][3] = {{as}, {am}, {aw}};
+    
+    // Compute Newton coeff
+    for (int i = 0; i < sizeof (diff_table) / sizeof (*diff_table); i++) {
+        for (int j = 0; j < (sizeof(*diff_table) / sizeof(**diff_table)) - i; j++) {
+           diff_table[i][j]  = (diff_table[i + 1][j -1] - diff_table[i][j - 1]) / (x[i +j] - x[i]);
+        }
+    }
+    for(size_t i = 0; i < width * height; i++) {
+        gray_map[i] = diff_table[0][0] + diff_table[0][1] * (gray_map[i] - x[0])
+                + diff_table[0][2] * (gray_map[i] - x[0]) * (gray_map[i] - x[1]);
+    }
+
+
+
+
+
+
+
+
+    for (int i = 0; i < sizeof (diff_table) / sizeof (*diff_table); i++) {
+        for(int j = 0; j < sizeof (*diff_table) / sizeof (**diff_table); j++) {
+            printf("%hhu ", diff_table[i][j]);
+        }
+        puts("");
+    }
+
+
+
+
+}
+
+
+// first change in Lagrange
+

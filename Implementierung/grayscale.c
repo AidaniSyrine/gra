@@ -5,29 +5,40 @@
 #include "grayscale.h"
 
 
-uint8_t* img_to_grey_scale(uint8_t* pix_map, int width, int height, float a, float b, float c) {
+void img_to_gray_scale(uint8_t* gray_map, const uint8_t* pix_map, size_t width, size_t height,
+                       float a, float b, float c) {
+    //Next Update: SIMD opt.
+    for (size_t i = 0; i < width * height; i++)
+        gray_map[i] = (a * pix_map[3 * i] + b * pix_map[(3 * i) +1]
+                + c * pix_map[3 * i + 2]) / (a+b+c);
+}
+
+void img_to_gray_scale_SIMD(uint8_t* gray_map, const uint8_t* pix_map, size_t width, size_t height,
+                               float a, float b, float c) {
     size_t num_pix = width * height * 3 * sizeof(uint8_t) ;
-    uint8_t* gray_map = (uint8_t*) malloc(  width * height * sizeof(uint8_t) );
     if (!gray_map) {
         // Memory allocation failed
-        return NULL;
+        return ;
     }
 
-    const __m128 a_coeff = _mm_set_ps(a,a,a,a);
-    const __m128 b_coeff = _mm_set_ps(b,b,b,b);
-    const __m128 c_coeff = _mm_set_ps(c,c,c,c);
-    const __m128 div = _mm_set_ps(a+b+c,a+b+c,a+b+c,a+b+c);
+    const __m128 a_coeff = _mm_set1_ps(a);
+     
+    const __m128 b_coeff = _mm_set1_ps(b);
+ 
+    const __m128 c_coeff = _mm_set1_ps(c);
+     
+    const __m128 div = _mm_set1_ps(a+b+c);
     
     size_t i,s; 
 
     for (; i*12<=num_pix-12;i+=12, s+=4){
 
         // load R from 4 pixels
-        __m128 a_col = _mm_set_ps(pix_map[i],pix_map[i+3],pix_map[i+6],pix_map[i+9]);
+        __m128 a_col = _mm_set_ps(pix_map[i+9],pix_map[i+6],pix_map[i+3],pix_map[i]);
         // load G from 4 pixels
-        __m128 b_col = _mm_set_ps(pix_map[i+1],pix_map[i+4],pix_map[i+7],pix_map[i+10]);
+        __m128 b_col =  _mm_set_ps(pix_map[i+10],pix_map[i+7],pix_map[i+4],pix_map[i+1]);
         // load B from 4 pixels
-        __m128 c_col = _mm_set_ps(pix_map[i+2],pix_map[i+5],pix_map[i+8],pix_map[i+11]);
+        __m128 c_col =  _mm_set_ps(pix_map[i+11],pix_map[i+8],pix_map[i+5],pix_map[i+2]);
         // multiply each color with the coeff 
         a_col = _mm_mul_ps(a_col, a_coeff);
         b_col = _mm_mul_ps(b_col, b_coeff);
@@ -38,7 +49,6 @@ uint8_t* img_to_grey_scale(uint8_t* pix_map, int width, int height, float a, flo
        
        for(size_t k=0; k<4 && s+k<width * height ; k++){
         gray_map[s+k] = (uint8_t) result[k];
-
        }
        
     }
@@ -46,5 +56,6 @@ uint8_t* img_to_grey_scale(uint8_t* pix_map, int width, int height, float a, flo
     for (; s<width*height;s++){
          gray_map[s]=(a*pix_map[3*s]+b*pix_map[3*s+1]+c*pix_map[3*s+2])/(a+b+c);
     }
-    return gray_map;
+
 }
+

@@ -8,6 +8,10 @@
 #include <stdlib.h>
 #include <immintrin.h>
 
+#define A .299
+#define B .587
+#define C .114
+
 /**
  *
  * @param pix_map
@@ -15,6 +19,8 @@
  * @param height
  * @return
  */
-uint8_t* img_to_grey_scale(uint8_t* pix_map, int width, int height,
+void img_to_gray_scale(uint8_t* gray_map, const uint8_t* pix_map, size_t width, size_t height,
                            float a, float b, float c);
 
+void img_to_gray_scale_SIMD(uint8_t* gray_map, const uint8_t* pix_map, size_t width, size_t height,
+                           float a, float b, float c);

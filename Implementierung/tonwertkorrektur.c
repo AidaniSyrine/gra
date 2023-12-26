@@ -3,14 +3,17 @@
 //
 #include <getopt.h>
 #include "io_operations.h"
+#include "grayscale.h"
+#include "adjustment.h"
+
 
 
 static int cflag = 0, sflag = 0, mflag = 0, wflag =0;
 static const struct option longopts[] = {
-        {"coeffs",  required_argument, 0, 'c'},
-        {"lvlss",   required_argument, 0,  's'},
-        {"lvlsm",   required_argument, 0, 'm'},
-        {"lvlsw",   required_argument, 0, 'w'},
+        {"coeffs",  required_argument, &cflag, 'c'},
+        {"lvlss",   required_argument, &sflag,  's'},
+        {"lvlsm",   required_argument, &mflag, 'm'},
+        {"lvlsw",   required_argument, &wflag, 'w'},
         {"help",    no_argument, 0, 'h'},
         {0,0,0,0}
 };
@@ -58,6 +61,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case 'm':
                             if (test_and_set_largs(valid_args, (const char **) &optarg, mflag)) goto arg_error;
+                            printf("%d and %d \n",(valid_args[0]), valid_args[1]);
                             em = ((uint8_t*) valid_args)[0]; am = ((uint8_t*)valid_args)[1];
                             break;
                         case 'w':
@@ -103,11 +107,10 @@ int main(int argc, char* argv[]) {
             }
     }
 
-
     // Setting Default value
     if (!input_flag) goto arg_error;
     if (!sflag) es = ES; as = AS;
-    if (!mflag) em = (ES + AW) / 2; am = (AS + AW) / 2;
+    if (!mflag) {em = (ES + AW) / 2; am = (AS + AW) / 2;}
     if (!wflag) ew = EW; aw =AW;
 
     // Read image
@@ -118,7 +121,21 @@ int main(int argc, char* argv[]) {
     if (ret == EXIT_FAILURE) goto img_error;
 
 
+    printf("%d and %d and %f\n",(am), (em), (float)((am - as) / (em - es)));
+    uint8_t* gray_map = (uint8_t*) malloc(  width * height * sizeof(uint8_t) );
+    img_to_gray_scale_SIMD(gray_map, pix_map, width, height, A, B, C);
 
+    linear_interpolation_SIMD(gray_map, width, height, es, as, em, am, ew, aw);
+        
+    uint8_t* gray_map2 = (uint8_t*) malloc(  width * height * sizeof(uint8_t) );
+    img_to_gray_scale_SIMD(gray_map2, pix_map, width, height, A, B, C);
+
+
+    linear_interpolation(gray_map2, width, height, es, as, em, am, ew, aw);
+
+for (size_t i =0 ;i<1000; i++){
+    printf("non simd %d , simd %d\n", gray_map[i], gray_map2[i]);
+}
 
     /*
      * a, b, c depens on --coeffs If not, on varg aka. chosen implemtation
@@ -128,7 +145,7 @@ int main(int argc, char* argv[]) {
      */
 
 
-    write_img(output_img_path, pix_map, width, height, 255, output_flag);
+    write_img(output_img_path, gray_map, width, height, 255, output_flag);
 
     //Unmap the allocated mem
     munmap(pix_map, (width * height * 3));
