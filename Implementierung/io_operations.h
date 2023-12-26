@@ -59,8 +59,9 @@ int test_and_set_largs(void* valid_args, const char**  option_args, int flag);
  * @param arg
  * @return
  */
-int test_and_set_io(char* path, const char* arg);
+int test_and_set_input(char* path, const char* arg);
 
+int test_and_set_output(char * path, const char* arg);
 
 /**
  * Load the image to the virtual address space

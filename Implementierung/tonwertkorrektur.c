@@ -2,10 +2,9 @@
 // Created by tade on 12/16/23.
 //
 #include <getopt.h>
+#include <time.h>
 #include "io_operations.h"
-#include "grayscale.h"
-#include "adjustment.h"
-
+#include "adjusment.h"
 
 static int cflag = 0, sflag = 0, mflag = 0, wflag =0;
 static const struct option longopts[] = {
@@ -17,16 +16,6 @@ static const struct option longopts[] = {
         {0,0,0,0}
 };
 
-
-void levels_adjustment(
-        const uint8_t* img, size_t width, size_t height,
-        float a, float b, float c,
-        uint8_t es, uint8_t as, uint8_t em, uint8_t am,
-        uint8_t ew, uint8_t aw,
-        uint8_t* result
-        );
-
-
 int main(int argc, char* argv[]) {
     // get-opt variables
     int option_index = 0;
@@ -35,7 +24,7 @@ int main(int argc, char* argv[]) {
     // Flags
     int input_flag = 0, output_flag = 0, vflag = 0, bflag = 0;
 
-    //Arguments and (Meta) data
+    // Arguments and (Meta) data
     int varg = 0, barg = 0;
     char input_img_path[512], output_img_path[512];
     float a, b, c;
@@ -60,11 +49,11 @@ int main(int argc, char* argv[]) {
                             break;
                         case 'm':
                             if (test_and_set_largs(valid_args, (const char **) &optarg, mflag)) goto arg_error;
-                            em = ((uint8_t*) valid_args)[0]; am = ((uint8_t*)valid_args)[1];
+                            em = ((uint8_t*) valid_args)[0]; am = ((uint8_t*) valid_args)[1];
                             break;
                         case 'w':
                             if (test_and_set_largs(valid_args, (const char **) &optarg, wflag)) goto arg_error;
-                            ew = ((uint8_t*) valid_args)[0]; aw = ((uint8_t*)valid_args)[1];
+                            ew = ((uint8_t*) valid_args)[0]; aw = ((uint8_t*) valid_args)[1];
                             break;
                         case '?':
                             puts("UNREACHABLE");
@@ -72,12 +61,13 @@ int main(int argc, char* argv[]) {
                     } break;
                 case 1: // Non-option arg input file
                     if(input_flag) goto arg_error;
-                    if (test_and_set_io(input_img_path, optarg)) goto io_error;
+                    if (test_and_set_input(input_img_path, optarg)) goto input_error;
                     input_flag++;
+                    printf("input= %s \n", input_img_path);
                     break;
                 case 'o': case 'O':
                     if (output_flag) goto arg_error;
-                    if (test_and_set_io(output_img_path, optarg)) goto io_error;
+                    if (test_and_set_output(output_img_path, optarg)) goto output_error;
                     output_flag++;
                     printf("output = %s\n", output_img_path);
                     break;
@@ -103,20 +93,23 @@ int main(int argc, char* argv[]) {
                     goto arg_error;
             }
     }
+    // No input fle
+    if (!input_flag) goto arg_error;
 
+    // Check if the input is valid
+    if (sflag && mflag && wflag)
+            if (es > ew || es> em || ew < em || as > aw || as > am || aw < am) goto arg_error;
 
     // Setting Default value
-    if (!input_flag) goto arg_error;
-    if (!sflag)  es = em = AS;
+    if (!sflag)  es = as = AS;
     if (!wflag) ew = aw = AW;
     if (!mflag) {
-        em = (ES + AW) / 2;
-        am = (AS + AW) / 2;
+        em = (es + aw) / 2;
+        am = (as + aw) / 2;
     }
-    // Check if es < em < ew & as < am < ew
-    if (es > ew || es> em || ew < em || as > aw || as > am || aw < am) goto arg_error;
-
-
+    if(!cflag) {
+        a = A; b = B; c = C;
+    }
 
     // Read image
     size_t width, height;
@@ -125,20 +118,14 @@ int main(int argc, char* argv[]) {
     if (ret == EXIT_MEM_FAILURE) goto mem_error;
     if (ret == EXIT_FAILURE) goto img_error;
 
-
-    /*
-     * a, b, c depens on --coeffs If not, on varg aka. chosen implemtation
-     * By definition -v0 is the main entry point
-     * Depending on barg
-     * Convert image (Gray scale + conversion) then write the image
-     */
-
+    // Allocate memory for the new grayscale 2D image
     uint8_t* gray_map = (uint8_t *) malloc(width * height);
     if (!gray_map) goto mem_error;
 
+
     { // Adjustements
-        img_to_gray_scale(gray_map, pix_map, width, height, A, B, C);
-        quadratic_interpolation_Newton(gray_map, width, height, es, as, em, am, ew, aw);
+        img_to_gray_scale(gray_map, pix_map, width, height, a, b, c);
+        linear_interpolation(gray_map, width, height, es, as, em, am, ew, aw);
     }
 
     // Write
@@ -159,8 +146,12 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "img_error\n");
         return EXIT_FAILURE;
 
-    io_error:
-        fprintf(stderr, "io_error\n");
+    input_error:
+        fprintf(stderr, "input_error\n");
+        return EXIT_FAILURE;
+
+    output_error:
+        fprintf(stderr, "output_error\n");
         return EXIT_FAILURE;
 
     arg_error:

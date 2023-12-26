@@ -49,9 +49,26 @@ int test_and_set_largs(void* valid_args, const char** option_args, int flag) {
 }
 
 
-int test_and_set_io(char* path, const char* arg) {
+int test_and_set_input(char* path, const char* arg) {
     if (!access(arg, F_OK)) {
-        strncpy(path, arg, 256);
+        strncpy(path, arg, 512);
+        return EXIT_SUCCESS;
+    }
+    return EXIT_FAILURE;
+}
+
+
+// Ouput must be pgm file
+int test_and_set_output(char* path, const char* arg) {
+    size_t suffix_len = strlen(".pgm");
+    size_t arg_len = strlen(arg);
+
+    // .pgm as an output file name is not allowed
+    if (arg_len < suffix_len + 1) return EXIT_FAILURE;
+
+    // None pgm files are also not allowed
+    if (!strncmp(arg + arg_len - suffix_len, ".pgm", suffix_len)) {
+        strncpy(path, arg, 512);
         return EXIT_SUCCESS;
     }
     return EXIT_FAILURE;
@@ -114,7 +131,6 @@ int write_img(const char *img_path, const uint8_t* pix_map,  size_t width, size_
     if (!flag) img_path = DEFAULT_OUTPUT_PATH;
     f = fopen(img_path, "wb");
     if (!f) return_defer(EXIT_FAILURE);
-
 
     // Write the corresponding header
     fprintf(f, "P5\n%zu %zu\n%i\n", width, height, color_depth);

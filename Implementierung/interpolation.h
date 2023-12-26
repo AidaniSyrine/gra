@@ -40,7 +40,22 @@ void bilinear_interpolation(uint8_t* gray_map, size_t width, size_t height,
 
 
 /**
- *  Gaussian Elimination
+ *
+ * @param gray_map
+ * @param width
+ * @param height
+ * @param es
+ * @param as
+ * @param em
+ * @param am
+ * @param ew
+ * @param aw
+ */
+void quadratic_interpolation_GaussianElimination(uint8_t* gray_map, size_t width, size_t height,
+                                                 uint8_t es, uint8_t as, uint8_t em,
+                                                 uint8_t am, uint8_t ew, uint8_t aw)
+/**
+ *  Direct
  * @param pix_map
  * @param width
  * @param height
@@ -67,7 +82,7 @@ void quadratic_interpolation_LS (uint8_t* gray_map, size_t width, size_t height,
  * @param ew
  * @param aw
  */
-void quadratic_interpolation_Lagrange(uint8_t* gray_map, size_t width, size_t height,
+void quadratic_interpolation_BLagrange(uint8_t* gray_map, size_t width, size_t height,
                                       uint8_t es, uint8_t as, uint8_t em,
                                       uint8_t am, uint8_t ew, uint8_t aw);
 

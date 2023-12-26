@@ -39,4 +39,5 @@ debug: $(SOURCE)
 	$(CC) $^ -o $@.out -std=c11 -O0 $(WFLAGS) -g
 
 clean:
-	rm -f $(wildcard *.out) *.dSYM ./images/*.pgm
+	rm -f $(wildcard *.out) *.dSYM
+	find . -type f -name "*.pgm" -delete
