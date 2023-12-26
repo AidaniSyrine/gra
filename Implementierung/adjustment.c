@@ -73,37 +73,20 @@ void quadratic_interpolation_Newton(uint8_t* gray_map, size_t width, size_t heig
     // Just for code readability and convenience
     uint8_t x[] = {es, em, ew};
     uint8_t diff_table[][3] = {{as}, {am}, {aw}};
-    
-    // Compute Newton coeff
-    for (int i = 0; i < sizeof (diff_table) / sizeof (*diff_table); i++) {
+
+    // Compute Newton coeffs
+    for (int i = 1; i < sizeof (diff_table) / sizeof (*diff_table); i++) {
         for (int j = 0; j < (sizeof(*diff_table) / sizeof(**diff_table)) - i; j++) {
-           diff_table[i][j]  = (diff_table[i + 1][j -1] - diff_table[i][j - 1]) / (x[i +j] - x[i]);
+            diff_table[j][i]  = (diff_table[j + 1][i -1] - diff_table[j][i - 1]) / (x[i +j] - x[j]);
         }
     }
+
+    // Newton polynomial
     for(size_t i = 0; i < width * height; i++) {
         gray_map[i] = diff_table[0][0] + diff_table[0][1] * (gray_map[i] - x[0])
                 + diff_table[0][2] * (gray_map[i] - x[0]) * (gray_map[i] - x[1]);
     }
-
-
-
-
-
-
-
-
-    for (int i = 0; i < sizeof (diff_table) / sizeof (*diff_table); i++) {
-        for(int j = 0; j < sizeof (*diff_table) / sizeof (**diff_table); j++) {
-            printf("%hhu ", diff_table[i][j]);
-        }
-        puts("");
-    }
-
-
-
-
 }
-
 
 // first change in Lagrange
 

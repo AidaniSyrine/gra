@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case 's':
                             if (test_and_set_largs(valid_args, (const char **) &optarg, sflag)) goto arg_error;
-                            es = ((uint8_t*) valid_args)[0]; as = ((uint8_t*)valid_args)[1];
+                            es = ((uint8_t*) valid_args)[0]; as = ((uint8_t*) valid_args)[1];
                             break;
                         case 'm':
                             if (test_and_set_largs(valid_args, (const char **) &optarg, mflag)) goto arg_error;
@@ -107,9 +107,12 @@ int main(int argc, char* argv[]) {
 
     // Setting Default value
     if (!input_flag) goto arg_error;
-    if (!sflag) es = ES; as = AS;
-    if (!mflag) em = (ES + AW) / 2; am = (AS + AW) / 2;
-    if (!wflag) ew = EW; aw =AW;
+    if (!sflag)  es = em = AS;
+    if (!wflag) ew = aw = AW;
+    if (!mflag) {
+        em = (ES + AW) / 2;
+        am = (AS + AW) / 2;
+    }
     // Check if es < em < ew & as < am < ew
     if (es > ew || es> em || ew < em || as > aw || as > am || aw < am) goto arg_error;
 
