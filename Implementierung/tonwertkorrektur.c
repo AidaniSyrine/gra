@@ -125,15 +125,17 @@ int main(int argc, char* argv[]) {
     if (ret == EXIT_MEM_FAILURE) goto mem_error;
     if (ret == EXIT_FAILURE) goto img_error;
 
-    uint8_t* gray_mapp = (uint8_t*) malloc(  width * height * sizeof(uint8_t) );
-    img_to_gray_scale(gray_mapp, pix_map, width, height, A, B, C);
-    linear_interpolation_SIMD(gray_mapp, width, height, es, as, em, am, ew, aw);
-
+   
     uint8_t* gray_mapp2 = (uint8_t*) malloc(  width * height * sizeof(uint8_t) );
     img_to_gray_scale(gray_mapp2, pix_map, width, height, A, B, C);
-    linear_interpolation(gray_mapp2, width, height, es, as, em, am, ew, aw);
+  // linear_interpolation(gray_mapp2, width, height, es, as, em, am, ew, aw);
+  
+   uint8_t* gray_mapp = (uint8_t*) malloc(  width * height * sizeof(uint8_t) );
+    img_to_gray_scale_SIMD(gray_mapp, pix_map, width, height, A, B, C);
+   // linear_interpolation_SIMD(gray_mapp, width, height, es, as, em, am, ew, aw);
 
-    
+
+   
     for (size_t i =0 ;i<500; i++){
          printf("i %d  non simd %hhu   simd%hhu\n",i, gray_mapp2[i],gray_mapp[i]);
     }
@@ -141,7 +143,6 @@ int main(int argc, char* argv[]) {
     for (size_t i =0 ;i<width*height; i++){
         if (gray_mapp2[i]!=gray_mapp[i]){
             printf("lghalta %d\n",i);
-            goto mem_error;
         }
     }
     

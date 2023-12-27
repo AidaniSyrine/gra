@@ -7,11 +7,14 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <immintrin.h>
+ #include <stdio.h>
 
 #define A .299
 #define B .587
 #define C .114
 
+void print_simdps(__m128 simd_variable) ;
+void print_simd(__m128i simd_variable);
 /**
  *
  * @param pix_map
