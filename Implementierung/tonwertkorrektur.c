@@ -109,9 +109,14 @@ int main(int argc, char* argv[]) {
 
     // Setting Default value
     if (!input_flag) goto arg_error;
-    if (!sflag) es = ES; as = AS;
-    if (!mflag) {em = (ES + AW) / 2; am = (AS + AW) / 2;}
-    if (!wflag) ew = EW; aw =AW;
+    if (!sflag) {es = ES; as = AS;}
+    if (!mflag) {
+        em = (ES + AW) / 2;
+        am = (AS + AW) / 2;
+     }
+    if (!wflag) {
+        ew = EW; aw =AW;
+    }
 
     // Read image
     size_t width, height;
@@ -120,22 +125,27 @@ int main(int argc, char* argv[]) {
     if (ret == EXIT_MEM_FAILURE) goto mem_error;
     if (ret == EXIT_FAILURE) goto img_error;
 
+    uint8_t* gray_mapp = (uint8_t*) malloc(  width * height * sizeof(uint8_t) );
+    img_to_gray_scale(gray_mapp, pix_map, width, height, A, B, C);
+    linear_interpolation_SIMD(gray_mapp, width, height, es, as, em, am, ew, aw);
 
-    printf("%d and %d and %f\n",(am), (em), (float)((am - as) / (em - es)));
-    uint8_t* gray_map = (uint8_t*) malloc(  width * height * sizeof(uint8_t) );
-    img_to_gray_scale_SIMD(gray_map, pix_map, width, height, A, B, C);
+    uint8_t* gray_mapp2 = (uint8_t*) malloc(  width * height * sizeof(uint8_t) );
+    img_to_gray_scale(gray_mapp2, pix_map, width, height, A, B, C);
+    linear_interpolation(gray_mapp2, width, height, es, as, em, am, ew, aw);
 
-    linear_interpolation_SIMD(gray_map, width, height, es, as, em, am, ew, aw);
-        
-    uint8_t* gray_map2 = (uint8_t*) malloc(  width * height * sizeof(uint8_t) );
-    img_to_gray_scale_SIMD(gray_map2, pix_map, width, height, A, B, C);
+    
+    for (size_t i =0 ;i<500; i++){
+         printf("i %d  non simd %hhu   simd%hhu\n",i, gray_mapp2[i],gray_mapp[i]);
+    }
 
-
-    linear_interpolation(gray_map2, width, height, es, as, em, am, ew, aw);
-
-for (size_t i =0 ;i<1000; i++){
-    printf("non simd %d , simd %d\n", gray_map[i], gray_map2[i]);
-}
+    for (size_t i =0 ;i<width*height; i++){
+        if (gray_mapp2[i]!=gray_mapp[i]){
+            printf("lghalta %d\n",i);
+            goto mem_error;
+        }
+    }
+    
+     printf("succes\n");
 
     /*
      * a, b, c depens on --coeffs If not, on varg aka. chosen implemtation
@@ -145,7 +155,7 @@ for (size_t i =0 ;i<1000; i++){
      */
 
 
-    write_img(output_img_path, gray_map, width, height, 255, output_flag);
+    write_img(output_img_path, gray_mapp, width, height, 255, output_flag);
 
     //Unmap the allocated mem
     munmap(pix_map, (width * height * 3));
