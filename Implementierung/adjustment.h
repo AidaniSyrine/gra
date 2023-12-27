@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <immintrin.h>
 
-void print_simd(__m128i simd_variable);
 /**
  *
  * @param pix_map
