@@ -148,7 +148,7 @@ int write_img(const char *img_path, const uint8_t* pix_map,  size_t width, size_
 }
 
 
-
+// TODO
 void print_help(void){
     puts("\n"
          "Desciption:\n"

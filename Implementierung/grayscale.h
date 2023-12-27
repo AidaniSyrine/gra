@@ -6,6 +6,7 @@
 
 #include <inttypes.h>
 #include <stdlib.h>
+#include <immintrin.h>
 
 #define A .299
 #define B .587
@@ -22,4 +23,7 @@ void img_to_gray_scale(uint8_t* gray_map, const uint8_t* pix_map, size_t width, 
                            float a, float b, float c);
 
 void img_to_gray_scale_SIMD(uint8_t* gray_map, const uint8_t* pix_map, size_t width, size_t height,
+                           float a, float b, float c);
+
+void img_to_gray_scale_LUT(uint8_t* gray_map, const uint8_t* pix_map, size_t width, size_t height,
                            float a, float b, float c);

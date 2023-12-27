@@ -4,7 +4,7 @@
 #include <getopt.h>
 #include <time.h>
 #include "io_operations.h"
-#include "adjusment.h"
+#include "adjustment.h"
 
 static int cflag = 0, sflag = 0, mflag = 0, wflag =0;
 static const struct option longopts[] = {
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     int input_flag = 0, output_flag = 0, vflag = 0, bflag = 0;
 
     // Arguments and (Meta) data
-    int varg = 0, barg = 0;
+    int version = 0, iterations = 1;
     char input_img_path[512], output_img_path[512];
     float a, b, c;
     uint8_t es, as, em, am, ew, aw;
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
                             ew = ((uint8_t*) valid_args)[0]; aw = ((uint8_t*) valid_args)[1];
                             break;
                         case '?':
-                            puts("UNREACHABLE");
+                            puts("UNREACHABLE!");
                             return EXIT_FAILURE;
                     } break;
                 case 1: // Non-option arg input file
@@ -72,19 +72,21 @@ int main(int argc, char* argv[]) {
                     printf("output = %s\n", output_img_path);
                     break;
                 case 'V': case 'v':
-                    if (vflag || test_and_set_sarg(&varg, optarg)) goto arg_error;
+                    if (vflag || test_and_set_sarg(&version, optarg)) goto arg_error;
+                    if (version < 0 || version > 5) goto arg_error;
                     vflag++;
-                    printf("varg= %d\n", varg);
+                    printf("varg= %d\n", version);
                     break;
                 case 'B': case 'b':
                     if (bflag) goto arg_error;
                     bflag++;
                     if (!optarg) {
-                        printf("barg= %d\n", barg);
+                        printf("barg= %d\n", iterations);
                         break;
                     }
-                    if (test_and_set_sarg(&barg, optarg)) goto arg_error;
-                    printf("barg= %d\n", barg);
+                    if (test_and_set_sarg(&iterations, optarg)) goto arg_error;
+                    if (iterations <= 0) goto arg_error;
+                    printf("barg= %d\n", iterations);
                     break;
                 case 'h': case 'H':
                     print_help();
@@ -123,12 +125,37 @@ int main(int argc, char* argv[]) {
     if (!gray_map) goto mem_error;
 
 
-    { // Adjustements
-        img_to_gray_scale(gray_map, pix_map, width, height, a, b, c);
-        linear_interpolation(gray_map, width, height, es, as, em, am, ew, aw);
-    }
+    // Adjustements
+    double start = curtime();
+    double time;
+    for (int i = 0; i < iterations; i++)
+        switch (version) {
+            case 0:
+                levels_adjustment(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+                break;
+            case 1:
+                levels_adjustment_V1(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+                break;
+            case 2:
+                levels_adjustment_V2(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
 
-    // Write
+                break;
+            case 3:
+                levels_adjustment_V3(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+                break;
+            case 4:
+                levels_adjustment_V4(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+                break;
+            case 5:
+                levels_adjustment_V5(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+                break;
+            default:
+                goto arg_error;
+        }
+    time = start - curtime();
+    if (bflag) printf("Took %f seconds\n", time);
+
+    // Write Image
     write_img(output_img_path, gray_map, width, height, 255, output_flag);
 
     // Cleanup
@@ -137,7 +164,7 @@ int main(int argc, char* argv[]) {
     return EXIT_SUCCESS;
 
 
-    // Next Update: cleanup case mem or img_error
+    // TODO: cleanup case mem or img_error
     mem_error:
         fprintf(stderr, "mem_error\n");
         return EXIT_FAILURE;
