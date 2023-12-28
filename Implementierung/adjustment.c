@@ -20,6 +20,35 @@ void linear_interpolation(uint8_t* gray_map, size_t width, size_t height,
    }
 }
 
+void linear_interpolation_LUT(uint8_t* gray_map, size_t width, size_t height,
+                              uint8_t es, uint8_t as, uint8_t em,
+                              uint8_t am, uint8_t ew, uint8_t aw)
+{
+   short lut[256] ={[0 ... 255]= -1}; 
+
+   for(size_t i = 0; i < width*height; i++) {
+        if (gray_map[i] <= es) gray_map[i] = as;
+        else if (gray_map[i] >= ew) gray_map[i] = aw;
+        else if (gray_map[i] == em) gray_map[i] = am;
+        else if (gray_map[i] < em) {
+            if (lut[gray_map[i]]!= -1) gray_map[i]=lut[gray_map[i]];
+            else {
+            uint8_t prev =gray_map[i];
+            gray_map[i] = as +  ((am - as) / (em - es)) * (gray_map[i] - es);
+            lut[prev]=gray_map[i]; 
+            }
+        }
+        else {
+            if (lut[gray_map[i]]!=-1) gray_map[i]=lut[gray_map[i]];
+            else {
+            uint8_t prev =gray_map[i];
+            gray_map[i] = am + ((aw - am) / (ew - em)) * (gray_map[i] - em);
+            lut[prev]=gray_map[i]; 
+            }
+       }
+   }
+}
+
 void linear_interpolation_SIMD(uint8_t* gray_map, size_t width, size_t height,
                               uint8_t es, uint8_t as, uint8_t em,
                               uint8_t am, uint8_t ew, uint8_t aw)
@@ -132,6 +161,42 @@ void quadratic_interpolation_LS(uint8_t* gray_map, size_t width, size_t height,
             float tmp = s1 * gray_map[i] * gray_map[i];
             float tmp1 = s2*gray_map[i];
             gray_map[i] = tmp+tmp1+s3;
+        }
+    }
+}
+
+void quadratic_interpolation_LS_LUT(uint8_t* gray_map, size_t width, size_t height,
+                              uint8_t es, uint8_t as, uint8_t em,
+                              uint8_t am, uint8_t ew, uint8_t aw) {
+
+    // Solving LS using Gaussian Elimination
+    float numerator = (as - aw) * (es - ew) - (as - aw) * (es - em);
+    float denominator = (es * es - em * em) * (es - ew) - (es * es-ew * ew) * (es - em);
+
+    float s1 = numerator / denominator;
+
+    float numerator1 = (as - am) * (es - ew) - s1 * (es * es - em * em) * (es - ew);
+    float denominator1 = (es - em) * (es - ew);
+
+    float s2 = numerator1 / denominator1;
+    
+    float s3 = as - s1 * es * es - s2 * es;    
+
+    short lut[256] ={[0 ... 255]= -1}; 
+
+    //calculating interpolation value  
+    for (size_t i = 0; i< width * height; i++) {
+        if (gray_map[i] <= es) gray_map[i] = as;
+        else if (gray_map[i] >= ew) gray_map[i] = aw;
+        else {
+            if (lut[gray_map[i]]!= -1) gray_map[i]=lut[gray_map[i]];
+            else {
+                uint8_t prev =gray_map[i];
+                float tmp = s1 * gray_map[i] * gray_map[i];
+                float tmp1 = s2*gray_map[i];
+                gray_map[i] = tmp+tmp1+s3;            
+                lut[prev]=gray_map[i];  
+            }
         }
     }
 }
