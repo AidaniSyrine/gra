@@ -3,14 +3,15 @@
 //
 
 #include "grayscale.h"
+#include <math.h>
 
 
 void img_to_gray_scale(uint8_t* gray_map, const uint8_t* pix_map, size_t width, size_t height,
                        float a, float b, float c) {
     //Next Update: SIMD opt.
     for (size_t i = 0; i < width * height; i++)
-        gray_map[i] = (a * pix_map[3 * i] + b * pix_map[(3 * i) +1]
-                + c * pix_map[3 * i + 2]) / (a+b+c);
+        gray_map[i] = roundtol((float) (a * pix_map[3 * i] + b * pix_map[(3 * i) +1]
+                + c * pix_map[3 * i + 2]) / (a+b+c));
 }
 
 void img_to_gray_scale_SIMD(uint8_t* gray_map, const uint8_t* pix_map, size_t width, size_t height,
@@ -31,7 +32,7 @@ void img_to_gray_scale_SIMD(uint8_t* gray_map, const uint8_t* pix_map, size_t wi
     
     size_t i,s; 
 
-    for (i=0 ,s=0; i<num_pix-num_pix%12;i+=12, s+=4){
+    for (i=168 ,s=0; i<170;i+=12, s+=4){
 
         // load R from 4 pixels
         __m128 a_col = _mm_set_ps(pix_map[i+9],pix_map[i+6],pix_map[i+3],pix_map[i]);
@@ -67,7 +68,7 @@ void img_to_gray_scale_SIMD(uint8_t* gray_map, const uint8_t* pix_map, size_t wi
        
         _mm_storeu_si32 ( gray_map+s,final_result);
     }
-    
+
     // calculate the grey value iteratively
     for (; s<width*height;s++){
          gray_map[s]=(a*pix_map[3*s]+b*pix_map[3*s+1]+c*pix_map[3*s+2])/(a+b+c);
