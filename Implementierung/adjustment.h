@@ -3,21 +3,29 @@
 //
 #pragma once
 
-
-#include <time.h>
 #include "grayscale.h"
 #include "interpolation.h"
 
-static inline double curtime(void) {
-    struct timespec t;
-    clock_gettime(CLOCK_MONOTONIC, &t);
-    return t.tv_sec + t.tv_nsec * 1e-9;
-
-}
 
 // "main implemetation entry point"
 
 // Linear +SIMD
+/**
+ * @Description:
+ * @param img
+ * @param width
+ * @param height
+ * @param a
+ * @param b
+ * @param c
+ * @param es
+ * @param as
+ * @param em
+ * @param am
+ * @param ew
+ * @param aw
+ * @param result
+ */
 void levels_adjustment(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
                        uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
 
@@ -46,3 +54,5 @@ void levels_adjustment_V5(const uint8_t* img, size_t width, size_t height, float
 void levels_adjustment_V5(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
                           uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
 
+void levels_adjustment_V6(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
+                          uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);

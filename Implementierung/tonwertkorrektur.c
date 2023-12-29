@@ -1,10 +1,13 @@
 //
 // Created by tade on 12/16/23.
 //
+#define _POSIX_C_SOURCE 199309L
+
 #include <getopt.h>
 #include <time.h>
 #include "io_operations.h"
 #include "adjustment.h"
+
 
 static int cflag = 0, sflag = 0, mflag = 0, wflag =0;
 static const struct option longopts[] = {
@@ -15,6 +18,12 @@ static const struct option longopts[] = {
         {"help",    no_argument, 0, 'h'},
         {0,0,0,0}
 };
+
+static inline double curtime(void) {
+    struct timespec t;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+    return t.tv_sec + t.tv_nsec * 1e-9;
+}
 
 int main(int argc, char* argv[]) {
     // get-opt variables
@@ -40,19 +49,19 @@ int main(int argc, char* argv[]) {
                 case 0: // Handle longopts
                     switch (longopts[option_index].val) {
                         case 'c':
-                            if (test_and_set_largs(valid_args, (const char **) &optarg, cflag)) goto arg_error;
+                            if (test_and_set_largs(valid_args,  &optarg, cflag)) goto arg_error;
                             a = ((float *) valid_args)[0]; b = ((float *) valid_args)[1]; c = ((float*) valid_args)[2];
                             break;
                         case 's':
-                            if (test_and_set_largs(valid_args, (const char **) &optarg, sflag)) goto arg_error;
+                            if (test_and_set_largs(valid_args, &optarg, sflag)) goto arg_error;
                             es = ((uint8_t*) valid_args)[0]; as = ((uint8_t*) valid_args)[1];
                             break;
                         case 'm':
-                            if (test_and_set_largs(valid_args, (const char **) &optarg, mflag)) goto arg_error;
+                            if (test_and_set_largs(valid_args, &optarg, mflag)) goto arg_error;
                             em = ((uint8_t*) valid_args)[0]; am = ((uint8_t*) valid_args)[1];
                             break;
                         case 'w':
-                            if (test_and_set_largs(valid_args, (const char **) &optarg, wflag)) goto arg_error;
+                            if (test_and_set_largs(valid_args, &optarg, wflag)) goto arg_error;
                             ew = ((uint8_t*) valid_args)[0]; aw = ((uint8_t*) valid_args)[1];
                             break;
                         case '?':
@@ -73,7 +82,7 @@ int main(int argc, char* argv[]) {
                     break;
                 case 'V': case 'v':
                     if (vflag || test_and_set_sarg(&version, optarg)) goto arg_error;
-                    if (version < 0 || version > 5) goto arg_error;
+                    if (version < 0 || version > 6) goto arg_error;
                     vflag++;
                     printf("varg= %d\n", version);
                     break;
@@ -126,6 +135,7 @@ int main(int argc, char* argv[]) {
 
 
     // Adjustements
+
     double start = curtime();
     double time;
     for (int i = 0; i < iterations; i++)
@@ -149,10 +159,13 @@ int main(int argc, char* argv[]) {
             case 5:
                 levels_adjustment_V5(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
                 break;
+            case 6:
+                levels_adjustment_V6(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+                break;
             default:
-                goto arg_error;
+                puts("UNREACHABLE!");
         }
-    time = start - curtime();
+    time = curtime() - start;
     if (bflag) printf("Took %f seconds\n", time);
 
     // Write Image

@@ -4,10 +4,10 @@
 
 #pragma once
 
+#include <string.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <errno.h>
 #include <inttypes.h>
@@ -50,7 +50,7 @@ int test_and_set_sarg(int* valid_arg, const char* option_arg);
  * @param num_args
  * @return
  */
-int test_and_set_largs(void* valid_args, const char**  option_args, int flag);
+int test_and_set_largs(void* valid_args, char** option_args, int flag);
 
 
 /**

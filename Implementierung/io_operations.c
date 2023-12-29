@@ -2,7 +2,6 @@
 // Created by tade on 12/16/23.
 //
 
-
 #include "io_operations.h"
 
 
@@ -18,18 +17,16 @@ int test_and_set_sarg(int* valid_arg, const char* option_arg) {
 }
 
 
-
-int test_and_set_largs(void* valid_args, const char** option_args, int flag) {
+// ________CHANGE________: strtok_r() --> strtok() (Compatibility)
+//                         strdup() --> use option_args
+int test_and_set_largs(void* valid_args, char** option_args, int flag) {
     char* tocken;
     char* endptr;
     size_t i;
-    char* rest = NULL;
-    char* dup = strdup(*option_args);
 
-
-    for(tocken = strtok_r(dup, ",", &rest), i = 0;
+    for(tocken = strtok(*option_args, ","), i = 0;
         tocken != NULL;
-        tocken = strtok_r(NULL, ",", &rest), i++)
+        tocken = strtok(NULL, ","), i++)
     {
         errno = 0;
         float tmp = strtof(tocken, &endptr);
@@ -102,9 +99,11 @@ int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* hei
      ascii_data++;
 
      // Read width, height, and color depth, assuming them to be valid digits
+    int depth_tmp;
+    if(sscanf(ascii_data, "%zu %zu\n%d", width, height, &depth_tmp) != 3) return_defer(EXIT_FAILURE);  // NOLINT(*-err34-c)
+    if (depth_tmp < 0 || depth_tmp > 255) return_defer(EXIT_FAILURE);
+    *color_depth = (uint8_t) depth_tmp;
 
-    if(sscanf(ascii_data, "%zu %zu\n%hhu", width, height, color_depth) != 3) return_defer(EXIT_FAILURE);  // NOLINT(*-err34-c)
-    if (*color_depth < 0 || *color_depth > 255) return_defer(EXIT_FAILURE);
     // Move the pointer toward the first pixel
     ascii_data = strchr(ascii_data, '\n');
     ascii_data++;
@@ -120,9 +119,10 @@ int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* hei
     // Cleanup case Failure
     defer:
     if(close(fd) < 0) return EXIT_FAILURE;
-    if (img_ptr >= (void*) 0) munmap(img_ptr, statbuf.st_size);
+    if (img_ptr != NULL) munmap(img_ptr, statbuf.st_size);
     return result;
 }
+
 
 int write_img(const char *img_path, const uint8_t* pix_map,  size_t width, size_t height, uint8_t color_depth, int flag) {
     // Open file
