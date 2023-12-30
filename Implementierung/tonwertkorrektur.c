@@ -4,14 +4,9 @@
 #define _POSIX_C_SOURCE 199309L
 
 #include <getopt.h>
-<<<<<<< HEAD
-#include <math.h>
-=======
 #include <time.h>
->>>>>>> f557a204cb78e293ca33412401af5d5ef2be3204
 #include "io_operations.h"
 #include "adjustment.h"
-
 
 
 static int cflag = 0, sflag = 0, mflag = 0, wflag =0;
@@ -24,25 +19,13 @@ static const struct option longopts[] = {
         {0,0,0,0}
 };
 
-<<<<<<< HEAD
-
-void levels_adjustment(
-        const uint8_t* img, size_t width, size_t height,
-        float a, float b, float c,
-        uint8_t es, uint8_t as, uint8_t em, uint8_t am,
-        uint8_t ew, uint8_t aw,
-        uint8_t* result
-        );
-=======
 static inline double curtime(void) {
     struct timespec t;
     clock_gettime(CLOCK_MONOTONIC, &t);
     return t.tv_sec + t.tv_nsec * 1e-9;
 }
->>>>>>> f557a204cb78e293ca33412401af5d5ef2be3204
 
 int main(int argc, char* argv[]) {
-
     // get-opt variables
     int option_index = 0;
     int option;
@@ -72,14 +55,8 @@ int main(int argc, char* argv[]) {
                             es = ((uint8_t*) valid_args)[0]; as = ((uint8_t*) valid_args)[1];
                             break;
                         case 'm':
-<<<<<<< HEAD
-                            if (test_and_set_largs(valid_args, (const char **) &optarg, mflag)) goto arg_error;
-                            printf("%d and %d \n",(valid_args[0]), valid_args[1]);
-                            em = ((uint8_t*) valid_args)[0]; am = ((uint8_t*)valid_args)[1];
-=======
                             if (test_and_set_largs(valid_args, &optarg, mflag)) goto arg_error;
                             em = ((uint8_t*) valid_args)[0]; am = ((uint8_t*) valid_args)[1];
->>>>>>> f557a204cb78e293ca33412401af5d5ef2be3204
                             break;
                         case 'w':
                             if (test_and_set_largs(valid_args, &optarg, wflag)) goto arg_error;
@@ -93,11 +70,7 @@ int main(int argc, char* argv[]) {
                     if(input_flag) goto arg_error;
                     if (test_and_set_input(input_img_path, optarg)) goto input_error;
                     input_flag++;
-<<<<<<< HEAD
-                    printf("input = %s\n", input_img_path);
-=======
                     printf("input= %s \n", input_img_path);
->>>>>>> f557a204cb78e293ca33412401af5d5ef2be3204
                     break;
                 case 'o': case 'O':
                     if (output_flag) goto arg_error;
@@ -133,17 +106,6 @@ int main(int argc, char* argv[]) {
     // No input fle
     if (!input_flag) goto arg_error;
 
-<<<<<<< HEAD
-    // Setting Default value
-    if (!input_flag) goto arg_error;
-    if (!sflag) {es = ES; as = AS;}
-    if (!mflag) {
-        em = (ES + AW) / 2;
-        am = (AS + AW) / 2;
-     }
-    if (!wflag) {
-        ew = EW; aw =AW;
-=======
     // Check if the input is valid
     if (sflag && mflag && wflag)
             if (es > ew || es> em || ew < em || as > aw || as > am || aw < am) goto arg_error;
@@ -157,7 +119,6 @@ int main(int argc, char* argv[]) {
     }
     if(!cflag) {
         a = A; b = B; c = C;
->>>>>>> f557a204cb78e293ca33412401af5d5ef2be3204
     }
 
     // Read image
@@ -167,28 +128,6 @@ int main(int argc, char* argv[]) {
     if (ret == EXIT_MEM_FAILURE) goto mem_error;
     if (ret == EXIT_FAILURE) goto img_error;
 
-<<<<<<< HEAD
-   
-    uint8_t* gray_mapp = (uint8_t*) malloc(  width * height * sizeof(uint8_t) );
-    img_to_gray_scale(gray_mapp, pix_map, width, height, A, B, C);    
-   linear_interpolation_LUT(gray_mapp, width, height, es, as, em, am, ew, aw);
- 
-    
-    /*
-     * a, b, c depens on --coeffs If not, on varg aka. chosen implemtation
-     * By definition -v0 is the main entry point
-     * Depending on barg
-     * Convert image (Gray scale + conversion) then write the image
-     */
-
-
-    write_img(output_img_path, gray_mapp, width, height, 255, output_flag);
-
-    //Unmap the allocated mem
-    munmap(pix_map, (width * height * 3));
-    return EXIT_SUCCESS;
-
-=======
     // Allocate memory for the new grayscale 2D image
     uint8_t* gray_map = (uint8_t *) malloc(width * height);
     if (!gray_map) goto mem_error;
@@ -238,7 +177,6 @@ int main(int argc, char* argv[]) {
 
 
     // TODO: cleanup case mem or img_error
->>>>>>> f557a204cb78e293ca33412401af5d5ef2be3204
     mem_error:
         fprintf(stderr, "mem_error\n");
         return EXIT_FAILURE;
