@@ -44,8 +44,6 @@ int main(int argc, char* argv[]) {
     char valid_args[3];
     while((option = getopt_long(argc, argv, "-HO:V:B::ho:v:b::", longopts, &option_index)) != EOF) {
             switch(option) {
-                //check double
-                //Next update
                 case 0: // Handle longopts
                     switch (longopts[option_index].val) {
                         case 'c':
@@ -82,6 +80,7 @@ int main(int argc, char* argv[]) {
                     break;
                 case 'V': case 'v':
                     if (vflag || test_and_set_sarg(&version, optarg)) goto arg_error;
+                    // TODO: set number of versions
                     if (version < 0 || version > 6) goto arg_error;
                     vflag++;
                     printf("varg= %d\n", version);
@@ -90,12 +89,12 @@ int main(int argc, char* argv[]) {
                     if (bflag) goto arg_error;
                     bflag++;
                     if (!optarg) {
-                        printf("barg= %d\n", iterations);
+                        printf("num of iterations is = %d\n", iterations);
                         break;
                     }
                     if (test_and_set_sarg(&iterations, optarg)) goto arg_error;
                     if (iterations <= 0) goto arg_error;
-                    printf("barg= %d\n", iterations);
+                    printf("num of iterations is = %d\n", iterations);
                     break;
                 case 'h': case 'H':
                     print_help();
@@ -134,7 +133,7 @@ int main(int argc, char* argv[]) {
     if (!gray_map) goto mem_error;
 
 
-    // Adjustements
+    // Adjustments
 
     double start = curtime();
     double time;
@@ -187,7 +186,7 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
 
     input_error:
-        fprintf(stderr, "input_error\n");
+        fprintf(stderr, "Input file does NOT meet the specification. Try a different file or  \n");
         return EXIT_FAILURE;
 
     output_error:

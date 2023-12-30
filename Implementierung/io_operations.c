@@ -47,10 +47,12 @@ int test_and_set_largs(void* valid_args, char** option_args, int flag) {
 
 
 int test_and_set_input(char* path, const char* arg) {
+    // Input file should exist and be accessible
     if (!access(arg, F_OK)) {
         strncpy(path, arg, 512);
         return EXIT_SUCCESS;
     }
+    fprintf(stderr, "File does not exist or is not accessible: %s\n", arg);
     return EXIT_FAILURE;
 }
 
@@ -77,20 +79,31 @@ int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* hei
     // Open file
     int result;
     int fd;
-    if ((fd = open(img_path, O_RDONLY)) < 0) return_defer(EXIT_FAILURE);
-
+    if ((fd = open(img_path, O_RDONLY)) < 0) {
+        fprintf(stderr, "Cannot open the file %s\n", img_path);
+        return_defer(EXIT_FAILURE);
+    }
+  
     // Retrieve file stats
     struct stat statbuf;
-    if (fstat(fd, &statbuf)) return_defer(EXIT_FAILURE);
-    if (!S_ISREG(statbuf.st_mode) || statbuf.st_size <= 0) return_defer(EXIT_FAILURE);
-
+    if (fstat(fd, &statbuf)) {
+        fprintf(stderr, "fstat() failed: %s\n", strerror(errno));
+        return_defer(EXIT_FAILURE);
+    }
+    if (!S_ISREG(statbuf.st_mode) || statbuf.st_size <= 0) {
+        fprintf(stderr, "Provided file: %s is not an empty or non regular file", img_path);
+        return_defer(EXIT_FAILURE);
+    }
     // Load the file to the virtual address space
     void* img_ptr = mmap(NULL, statbuf.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
     if (img_ptr == MAP_FAILED) return_defer(EXIT_MEM_FAILURE);
 
     // Check image's version
     char * ascii_data = (char *) img_ptr;
-    if (ascii_data[0] != 'P' || ascii_data[1] != '6') return_defer(EXIT_FAILURE);
+    if (ascii_data[0] != 'P' || ascii_data[1] != '6') {
+        fprintf(stderr, "Provided file: %s is not a PPM image.\n", img_path);
+        return_defer(EXIT_FAILURE);
+    }
     ascii_data += 2;
 
     // If exists, ignore comments
@@ -98,10 +111,16 @@ int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* hei
          ascii_data = strchr(ascii_data, '\n');
      ascii_data++;
 
-     // Read width, height, and color depth, assuming them to be valid digits
+     // Read width, height, and color depth
     int depth_tmp;
-    if(sscanf(ascii_data, "%zu %zu\n%d", width, height, &depth_tmp) != 3) return_defer(EXIT_FAILURE);  // NOLINT(*-err34-c)
-    if (depth_tmp < 0 || depth_tmp > 255) return_defer(EXIT_FAILURE);
+    if(sscanf(ascii_data, "%zu %zu\n%d", width, height, &depth_tmp) != 3) { 
+        fprintf(stderr, "Provided file: %s is not a regular PPM image.\n", img_path);
+        return_defer(EXIT_FAILURE); 
+    }
+    if (depth_tmp < 0 || depth_tmp > 255) {
+        fprintf(stderr, "Provided file: %s is not a regular PPM image.\n", img_path);
+         return_defer(EXIT_FAILURE);
+    }
     *color_depth = (uint8_t) depth_tmp;
 
     // Move the pointer toward the first pixel
@@ -113,12 +132,18 @@ int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* hei
     // Cast the pointer to read raw data to bytes
     *pix_map = (uint8_t*) ascii_data;
 
-    if(close(fd) < 0) return EXIT_FAILURE;
+    if(close(fd) < 0) {
+        fprintf(stderr, "close() failed: %s\n", strerror(errno));
+        return EXIT_FAILURE;
+    }
     return EXIT_SUCCESS;
 
     // Cleanup case Failure
     defer:
-    if(close(fd) < 0) return EXIT_FAILURE;
+    if(close(fd) < 0) {
+        fprintf(stderr, "close() failed: %s\n", strerror(errno));
+        return EXIT_FAILURE;
+    }
     if (img_ptr != NULL) munmap(img_ptr, statbuf.st_size);
     return result;
 }
