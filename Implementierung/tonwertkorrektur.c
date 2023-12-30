@@ -1,10 +1,15 @@
 //
 // Created by tade on 12/16/23.
 //
+#define _POSIX_C_SOURCE 199309L
+
 #include <getopt.h>
+<<<<<<< HEAD
 #include <math.h>
+=======
+#include <time.h>
+>>>>>>> f557a204cb78e293ca33412401af5d5ef2be3204
 #include "io_operations.h"
-#include "grayscale.h"
 #include "adjustment.h"
 
 
@@ -19,6 +24,7 @@ static const struct option longopts[] = {
         {0,0,0,0}
 };
 
+<<<<<<< HEAD
 
 void levels_adjustment(
         const uint8_t* img, size_t width, size_t height,
@@ -27,6 +33,13 @@ void levels_adjustment(
         uint8_t ew, uint8_t aw,
         uint8_t* result
         );
+=======
+static inline double curtime(void) {
+    struct timespec t;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+    return t.tv_sec + t.tv_nsec * 1e-9;
+}
+>>>>>>> f557a204cb78e293ca33412401af5d5ef2be3204
 
 int main(int argc, char* argv[]) {
 
@@ -37,8 +50,8 @@ int main(int argc, char* argv[]) {
     // Flags
     int input_flag = 0, output_flag = 0, vflag = 0, bflag = 0;
 
-    //Arguments and (Meta) data
-    int varg = 0, barg = 0;
+    // Arguments and (Meta) data
+    int version = 0, iterations = 1;
     char input_img_path[512], output_img_path[512];
     float a, b, c;
     uint8_t es, as, em, am, ew, aw;
@@ -48,57 +61,67 @@ int main(int argc, char* argv[]) {
     char valid_args[3];
     while((option = getopt_long(argc, argv, "-HO:V:B::ho:v:b::", longopts, &option_index)) != EOF) {
             switch(option) {
-                //check double
-                //Next update
                 case 0: // Handle longopts
                     switch (longopts[option_index].val) {
                         case 'c':
-                            if (test_and_set_largs(valid_args, (const char **) &optarg, cflag)) goto arg_error;
+                            if (test_and_set_largs(valid_args,  &optarg, cflag)) goto arg_error;
                             a = ((float *) valid_args)[0]; b = ((float *) valid_args)[1]; c = ((float*) valid_args)[2];
                             break;
                         case 's':
-                            if (test_and_set_largs(valid_args, (const char **) &optarg, sflag)) goto arg_error;
-                            es = ((uint8_t*) valid_args)[0]; as = ((uint8_t*)valid_args)[1];
+                            if (test_and_set_largs(valid_args, &optarg, sflag)) goto arg_error;
+                            es = ((uint8_t*) valid_args)[0]; as = ((uint8_t*) valid_args)[1];
                             break;
                         case 'm':
+<<<<<<< HEAD
                             if (test_and_set_largs(valid_args, (const char **) &optarg, mflag)) goto arg_error;
                             printf("%d and %d \n",(valid_args[0]), valid_args[1]);
                             em = ((uint8_t*) valid_args)[0]; am = ((uint8_t*)valid_args)[1];
+=======
+                            if (test_and_set_largs(valid_args, &optarg, mflag)) goto arg_error;
+                            em = ((uint8_t*) valid_args)[0]; am = ((uint8_t*) valid_args)[1];
+>>>>>>> f557a204cb78e293ca33412401af5d5ef2be3204
                             break;
                         case 'w':
-                            if (test_and_set_largs(valid_args, (const char **) &optarg, wflag)) goto arg_error;
-                            ew = ((uint8_t*) valid_args)[0]; aw = ((uint8_t*)valid_args)[1];
+                            if (test_and_set_largs(valid_args, &optarg, wflag)) goto arg_error;
+                            ew = ((uint8_t*) valid_args)[0]; aw = ((uint8_t*) valid_args)[1];
                             break;
                         case '?':
-                            puts("UNREACHABLE");
+                            puts("UNREACHABLE!");
                             return EXIT_FAILURE;
                     } break;
                 case 1: // Non-option arg input file
                     if(input_flag) goto arg_error;
-                    if (test_and_set_io(input_img_path, optarg)) goto io_error;
+                    if (test_and_set_input(input_img_path, optarg)) goto input_error;
                     input_flag++;
+<<<<<<< HEAD
                     printf("input = %s\n", input_img_path);
+=======
+                    printf("input= %s \n", input_img_path);
+>>>>>>> f557a204cb78e293ca33412401af5d5ef2be3204
                     break;
                 case 'o': case 'O':
                     if (output_flag) goto arg_error;
-                    if (test_and_set_io(output_img_path, optarg)) goto io_error;
+                    if (test_and_set_output(output_img_path, optarg)) goto output_error;
                     output_flag++;
                     printf("output = %s\n", output_img_path);
                     break;
                 case 'V': case 'v':
-                    if (vflag || test_and_set_sarg(&varg, optarg)) goto arg_error;
+                    if (vflag || test_and_set_sarg(&version, optarg)) goto arg_error;
+                    // TODO: set number of versions
+                    if (version < 0 || version > 6) goto arg_error;
                     vflag++;
-                    printf("varg= %d\n", varg);
+                    printf("varg= %d\n", version);
                     break;
                 case 'B': case 'b':
                     if (bflag) goto arg_error;
                     bflag++;
                     if (!optarg) {
-                        printf("barg= %d\n", barg);
+                        printf("num of iterations is = %d\n", iterations);
                         break;
                     }
-                    if (test_and_set_sarg(&barg, optarg)) goto arg_error;
-                    printf("barg= %d\n", barg);
+                    if (test_and_set_sarg(&iterations, optarg)) goto arg_error;
+                    if (iterations <= 0) goto arg_error;
+                    printf("num of iterations is = %d\n", iterations);
                     break;
                 case 'h': case 'H':
                     print_help();
@@ -107,7 +130,10 @@ int main(int argc, char* argv[]) {
                     goto arg_error;
             }
     }
+    // No input fle
+    if (!input_flag) goto arg_error;
 
+<<<<<<< HEAD
     // Setting Default value
     if (!input_flag) goto arg_error;
     if (!sflag) {es = ES; as = AS;}
@@ -117,6 +143,21 @@ int main(int argc, char* argv[]) {
      }
     if (!wflag) {
         ew = EW; aw =AW;
+=======
+    // Check if the input is valid
+    if (sflag && mflag && wflag)
+            if (es > ew || es> em || ew < em || as > aw || as > am || aw < am) goto arg_error;
+
+    // Setting Default value
+    if (!sflag)  es = as = AS;
+    if (!wflag) ew = aw = AW;
+    if (!mflag) {
+        em = (es + aw) / 2;
+        am = (as + aw) / 2;
+    }
+    if(!cflag) {
+        a = A; b = B; c = C;
+>>>>>>> f557a204cb78e293ca33412401af5d5ef2be3204
     }
 
     // Read image
@@ -126,6 +167,7 @@ int main(int argc, char* argv[]) {
     if (ret == EXIT_MEM_FAILURE) goto mem_error;
     if (ret == EXIT_FAILURE) goto img_error;
 
+<<<<<<< HEAD
    
     uint8_t* gray_mapp = (uint8_t*) malloc(  width * height * sizeof(uint8_t) );
     img_to_gray_scale(gray_mapp, pix_map, width, height, A, B, C);    
@@ -146,6 +188,57 @@ int main(int argc, char* argv[]) {
     munmap(pix_map, (width * height * 3));
     return EXIT_SUCCESS;
 
+=======
+    // Allocate memory for the new grayscale 2D image
+    uint8_t* gray_map = (uint8_t *) malloc(width * height);
+    if (!gray_map) goto mem_error;
+
+
+    // Adjustments
+
+    double start = curtime();
+    double time;
+    for (int i = 0; i < iterations; i++)
+        switch (version) {
+            case 0:
+                levels_adjustment(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+                break;
+            case 1:
+                levels_adjustment_V1(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+                break;
+            case 2:
+                levels_adjustment_V2(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+
+                break;
+            case 3:
+                levels_adjustment_V3(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+                break;
+            case 4:
+                levels_adjustment_V4(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+                break;
+            case 5:
+                levels_adjustment_V5(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+                break;
+            case 6:
+                levels_adjustment_V6(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+                break;
+            default:
+                puts("UNREACHABLE!");
+        }
+    time = curtime() - start;
+    if (bflag) printf("Took %f seconds\n", time);
+
+    // Write Image
+    write_img(output_img_path, gray_map, width, height, 255, output_flag);
+
+    // Cleanup
+    free(gray_map);
+    munmap(pix_map, (width * height * 3));
+    return EXIT_SUCCESS;
+
+
+    // TODO: cleanup case mem or img_error
+>>>>>>> f557a204cb78e293ca33412401af5d5ef2be3204
     mem_error:
         fprintf(stderr, "mem_error\n");
         return EXIT_FAILURE;
@@ -154,8 +247,12 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "img_error\n");
         return EXIT_FAILURE;
 
-    io_error:
-        fprintf(stderr, "io_error\n");
+    input_error:
+        fprintf(stderr, "Input file does NOT meet the specification. Try a different file or  \n");
+        return EXIT_FAILURE;
+
+    output_error:
+        fprintf(stderr, "output_error\n");
         return EXIT_FAILURE;
 
     arg_error:

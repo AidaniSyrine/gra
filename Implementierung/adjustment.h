@@ -1,123 +1,58 @@
 //
-// Created by Adem Trabelsi on 21.12.23.
+// Created by Adem Trabelsi on 26.12.23.
 //
-
 #pragma once
 
-#include <inttypes.h>
-#include <stdlib.h>
-#include <immintrin.h>
+#include "grayscale.h"
+#include "interpolation.h"
 
 
-void linear_interpolation_LUT(uint8_t* gray_map, size_t width, size_t height,
-                              uint8_t es, uint8_t as, uint8_t em,
-                              uint8_t am, uint8_t ew, uint8_t aw);
+// "main implemetation entry point"
 
-void quadratic_interpolation_LS_LUT(uint8_t* gray_map, size_t width, size_t height,
-                              uint8_t es, uint8_t as, uint8_t em,
-                              uint8_t am, uint8_t ew, uint8_t aw);
-
+// Linear +SIMD
 /**
- *
- * @param pix_map
+ * @Description:
+ * @param img
  * @param width
  * @param height
- * @return
- */
-
-void linear_interpolation_SIMD(uint8_t* gray_map, size_t width, size_t height,
-                              uint8_t es, uint8_t as, uint8_t em,
-                              uint8_t am, uint8_t ew, uint8_t aw);
-
-
-/**
- *
- * @param pix_map
- * @param width
- * @param height
- * @return
- */
-void linear_interpolation(uint8_t* gray_map, size_t width, size_t height,
-                              uint8_t es, uint8_t as, uint8_t em,
-                              uint8_t am, uint8_t ew, uint8_t aw);
-
-
-/**
- *
- * @param gray_map
- * @param width
- * @param height
+ * @param a
+ * @param b
+ * @param c
  * @param es
  * @param as
  * @param em
  * @param am
  * @param ew
  * @param aw
- * @return
+ * @param result
  */
-void bilinear_interpolation(uint8_t* gray_map, size_t width, size_t height,
-                            uint8_t es, uint8_t as, uint8_t em,
-                            uint8_t am, uint8_t ew, uint8_t aw);
+void levels_adjustment(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
+                       uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
 
 
-/**
- *  Gaussian Elimination
- * @param pix_map
- * @param width
- * @param height
- * @param es
- * @param as
- * @param em
- * @param am
- * @param ew
- * @param aw
- * @return
- */
-void quadratic_interpolation_LS (uint8_t* gray_map, size_t width, size_t height,
-                                 uint8_t es, uint8_t as, uint8_t em,
-                                 uint8_t am, uint8_t ew, uint8_t aw);
+// Linear -SIMD
+void levels_adjustment_V1(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
+                           uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
 
-void  quadratic_interpolation_LS_SIMD (uint8_t* gray_map, size_t width, size_t height,
-                                 uint8_t es, uint8_t as, uint8_t em,
-                                 uint8_t am, uint8_t ew, uint8_t aw);
+// Bilinear
+void levels_adjustment_V2(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
+                          uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
 
-/**
- *
- * @param gray_map
- * @param width
- * @param height
- * @param es
- * @param as
- * @param em
- * @param am
- * @param ew
- * @param aw
- */
+// Quadratic LS -SIMD
+void levels_adjustment_V3(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
+                          uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
 
-void quadratic_interpolation_Lagrange(uint8_t* gray_map, size_t width, size_t height,
-                                      uint8_t es, uint8_t as, uint8_t em,
-                                      uint8_t am, uint8_t ew, uint8_t aw);
+// Quadratic LS +SIMD
+void levels_adjustment_V4(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
+                          uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
 
-/**
- *
- * @param gray_map
- * @param width
- * @param height
- * @param es
- * @param as
- * @param em
- * @param am
- * @param ew
- * @param aw
- */
-void quadratic_interpolation_Newton(uint8_t* gray_map, size_t width, size_t height,
-                                     uint8_t es, uint8_t as, uint8_t em,
-                                     uint8_t am, uint8_t ew, uint8_t aw);
+// Quadratic Newton
+void levels_adjustment_V5(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
+                          uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
 
+// Quadratic Barycentric Lagrange
+void levels_adjustment_V5(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
+                          uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
 
-
-
-
-
-
-
+void levels_adjustment_V6(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
+                          uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
