@@ -22,24 +22,21 @@ int test_and_set_largs(float* valid_args, char** option_args, int flag) {
     size_t i;
     for(token = strtok(*option_args, ","), i = 0;
         token != NULL; 
-        token = strtok(NULL, ",")) {
+        token = strtok(NULL, ","), i++) {
             errno = 0;
+            
             float tmp = strtof(token, &endptr);
-             printf("token = %s\n", token);
-            if(endptr == token || *endptr != '\0' ||errno == ERANGE)
-            return EXIT_FAILURE;
-            printf("%f\n", tmp);
+            if(endptr == token || *endptr != '\0' ||errno == ERANGE) return EXIT_FAILURE;
+            
             if (flag == 'c') {
                 if (i > 2 || tmp < 0) return EXIT_FAILURE;
                 valid_args[i] = tmp;
-                printf("%f\n", valid_args[i]);
-
             } else {
                 if (i > 1 || tmp > 255 || tmp < 0) return EXIT_FAILURE;
                 valid_args[i] = tmp;
-                printf("%f\n",  valid_args[i]);
             }
         }
+        return EXIT_SUCCESS;
 }
 /*
 int test_and_set_largs(void* valid_args, char** option_args, int flag) {
