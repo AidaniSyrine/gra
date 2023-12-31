@@ -16,34 +16,67 @@ int test_and_set_sarg(int* valid_arg, const char* option_arg) {
     return EXIT_SUCCESS;
 }
 
-
-// ________CHANGE________: strtok_r() --> strtok() (Compatibility)
-//                         strdup() --> use option_args
-int test_and_set_largs(void* valid_args, char** option_args, int flag) {
-    char* tocken;
+int test_and_set_largs(float* valid_args, char** option_args, int flag) {
+    char* token = NULL;
     char* endptr;
     size_t i;
+    for(token = strtok(*option_args, ","), i = 0;
+        token != NULL; 
+        token = strtok(NULL, ",")) {
+            errno = 0;
+            float tmp = strtof(token, &endptr);
+             printf("token = %s\n", token);
+            if(endptr == token || *endptr != '\0' ||errno == ERANGE)
+            return EXIT_FAILURE;
+            printf("%f\n", tmp);
+            if (flag == 'c') {
+                if (i > 2 || tmp < 0) return EXIT_FAILURE;
+                valid_args[i] = tmp;
+                printf("%f\n", valid_args[i]);
 
-    for(tocken = strtok(*option_args, ","), i = 0;
-        tocken != NULL;
-        tocken = strtok(NULL, ","), i++)
+            } else {
+                if (i > 1 || tmp > 255 || tmp < 0) return EXIT_FAILURE;
+                valid_args[i] = tmp;
+                printf("%f\n",  valid_args[i]);
+            }
+        }
+}
+/*
+int test_and_set_largs(void* valid_args, char** option_args, int flag) {
+    char* token;
+    char* endptr;
+    size_t i;
+    char* rest = NULL;
+    char* dup = strdup(*option_args);
+
+
+    for(token = strtok_r(dup, ",", &rest), i = 0;
+        token != NULL;
+        token = strtok_r(NULL, ",", &rest), i++)
     {
         errno = 0;
-        float tmp = strtof(tocken, &endptr);
+        float tmp = strtof(token, &endptr);
 
-        if(endptr == tocken || *endptr != '\0' ||errno == ERANGE)
+        if(endptr == token || *endptr != '\0' ||errno == ERANGE)
             return EXIT_FAILURE;
 
         if (flag == 'c') {
             if (i > 2 || tmp < 0) return EXIT_FAILURE;
             ((float *) valid_args)[i] = tmp;
+            printf("%f\n", ((float *) valid_args)[i]);
+
         } else {
             if (i > 1 || tmp > 255 || tmp < 0) return EXIT_FAILURE;
             ((uint8_t *) valid_args)[i] = (uint8_t) tmp;
+            printf("%f\n", ((float *) valid_args)[i]);
         }
     }
+    
+    
     return EXIT_SUCCESS;
+
 }
+*/
 
 
 int test_and_set_input(char* path, const char* arg) {

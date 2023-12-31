@@ -41,26 +41,26 @@ int main(int argc, char* argv[]) {
 
 
     // Read options
-    char valid_args[3];
+    float valid_args[3];
     while((option = getopt_long(argc, argv, "-HO:V:B::ho:v:b::", longopts, &option_index)) != EOF) {
             switch(option) {
                 case 0: // Handle longopts
                     switch (longopts[option_index].val) {
                         case 'c':
-                            if (test_and_set_largs(valid_args,  &optarg, cflag)) goto arg_error;
-                            a = ((float *) valid_args)[0]; b = ((float *) valid_args)[1]; c = ((float*) valid_args)[2];
+                            if (test_and_set_largs(valid_args, &optarg, cflag)) goto arg_error;
+                            a = valid_args[0]; b = valid_args[1]; c = valid_args[2];
                             break;
                         case 's':
                             if (test_and_set_largs(valid_args, &optarg, sflag)) goto arg_error;
-                            es = ((uint8_t*) valid_args)[0]; as = ((uint8_t*) valid_args)[1];
+                            es = (uint8_t) valid_args[0]; as = (uint8_t) valid_args[1];
                             break;
                         case 'm':
                             if (test_and_set_largs(valid_args, &optarg, mflag)) goto arg_error;
-                            em = ((uint8_t*) valid_args)[0]; am = ((uint8_t*) valid_args)[1];
+                            em = (uint8_t) valid_args[0]; am = (uint8_t) valid_args[1];
                             break;
                         case 'w':
                             if (test_and_set_largs(valid_args, &optarg, wflag)) goto arg_error;
-                            ew = ((uint8_t*) valid_args)[0]; aw = ((uint8_t*) valid_args)[1];
+                            ew = (uint8_t) valid_args[0]; aw = (uint8_t) valid_args[1];
                             break;
                         case '?':
                             puts("UNREACHABLE!");
