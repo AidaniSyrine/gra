@@ -29,24 +29,17 @@ void linear_interpolation_LUT(uint8_t* gray_map, size_t width, size_t height,
     for (int i = 0; i < 256; ++i) lut[i] = -1;
 
     for(size_t i = 0; i < width*height; i++) {
-        if (gray_map[i] <= es) gray_map[i] = as;
-        else if (gray_map[i] >= ew) gray_map[i] = aw;
-        else if (gray_map[i] == em) gray_map[i] = am;
-        else if (gray_map[i] < em) {
-            if (lut[gray_map[i]]!= -1) gray_map[i]=lut[gray_map[i]];
-            else {
-                uint8_t prev =gray_map[i];
-                gray_map[i] = as +  ((am - as) / (em - es)) * (gray_map[i] - es);
-                lut[prev]=gray_map[i];
-            }
-        }
+        if (lut[gray_map[i]]!= -1) gray_map[i]=lut[gray_map[i]];
         else {
-            if (lut[gray_map[i]]!=-1) gray_map[i]=lut[gray_map[i]];
-            else {
-                uint8_t prev =gray_map[i];
+            uint8_t prev =gray_map[i];
+            if (gray_map[i] <= es)  gray_map[i] = as;
+            else if (gray_map[i] >= ew)  gray_map[i] = aw;
+            else if (gray_map[i] == em)  gray_map[i] = am;
+            else if (gray_map[i] < em)   
+                gray_map[i] = as +  ((am - as) / (em - es)) * (gray_map[i] - es);
+            else 
                 gray_map[i] = am + ((aw - am) / (ew - em)) * (gray_map[i] - em);
-                lut[prev]=gray_map[i];
-            }
+            lut[prev]=gray_map[i];
         }
     }
 }
@@ -194,23 +187,24 @@ void quadratic_interpolation_LS_LUT(uint8_t* gray_map, size_t width, size_t heig
             / (float)(es - em) * (es - ew);
     float s3 = as - s1 * es * es - s2 * es;
 
-    //Intialising LUT
+    //Initialising LUT
     short lut[256];
     for (int i = 0; i < 256; ++i) lut[i] = -1;
 
     // Calculating interpolation values
-    for (size_t i = 0; i< width * height; i++) {
-        if (gray_map[i] <= es) gray_map[i] = as;
-        else if (gray_map[i] >= ew) gray_map[i] = aw;
+    for(size_t i = 0; i < width*height; i++) {
+        if (lut[gray_map[i]]!= -1) gray_map[i]=lut[gray_map[i]];
         else {
-            if (lut[gray_map[i]] != -1) gray_map[i] = lut[gray_map[i]];
+            uint8_t prev =gray_map[i];
+            if (gray_map[i] <= es)  gray_map[i] = as;
+            else if (gray_map[i] >= ew)  gray_map[i] = aw;
+            else if (gray_map[i] == em)  gray_map[i] = am;
             else {
-                uint8_t prev =gray_map[i];
                 float tmp = s1 * gray_map[i] * gray_map[i];
                 float tmp1 = s2 * gray_map[i];
                 gray_map[i] = tmp + tmp1 + s3;
-                lut[prev] = gray_map[i];
             }
+            lut[prev]=gray_map[i];
         }
     }
 }

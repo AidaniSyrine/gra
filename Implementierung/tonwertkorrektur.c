@@ -135,35 +135,41 @@ int main(int argc, char* argv[]) {
 
     // Adjustments
 
-    double start = curtime();
     double time;
-    for (int i = 0; i < iterations; i++)
-        switch (version) {
-            case 0:
-                levels_adjustment(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
-                break;
-            case 1:
-                levels_adjustment_V1(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
-                break;
-            case 2:
-                levels_adjustment_V2(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+    double start = curtime();
 
-                break;
-            case 3:
+    switch (version) {
+        case 0:
+            for (int i = 0; i < iterations; i++)
+                levels_adjustment(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+            break;
+        case 1:
+            for (int i = 0; i < iterations; i++)
+                levels_adjustment_V1(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+            break;
+        case 2:
+             for (int i = 0; i < iterations; i++)
+                levels_adjustment_V2(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
+            break;
+        case 3:
+            for (int i = 0; i < iterations; i++)
                 levels_adjustment_V3(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
-                break;
-            case 4:
+            break;
+        case 4:
+            for (int i = 0; i < iterations; i++)
                 levels_adjustment_V4(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
-                break;
-            case 5:
+            break;
+        case 5:
+            for (int i = 0; i < iterations; i++)
                 levels_adjustment_V5(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
-                break;
-            case 6:
+            break;
+        case 6:
+            for (int i = 0; i < iterations; i++)
                 levels_adjustment_V6(pix_map, width, height, a, b, c, es, as, em, am, ew, aw, gray_map);
-                break;
-            default:
-                puts("UNREACHABLE!");
-        }
+            break;
+        default:
+            puts("UNREACHABLE!");
+    }
     time = curtime() - start;
     if (bflag) printf("Took %f seconds\n", time);
 
@@ -186,7 +192,7 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
 
     input_error:
-        fprintf(stderr, "Input file does NOT meet the specification. Try a different file or  \n");
+        fprintf(stderr, "Input file does not meet the specification. Try a different file or --help.\n");
         return EXIT_FAILURE;
 
     output_error:

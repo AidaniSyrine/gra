@@ -10,7 +10,7 @@ SOURCE = $(wildcard *.c)
 WFLAGS = -Wall -Wextra -Wpedantic
 # Compile with disabled optimisation
 tonwertkorrektur: $(SOURCE)
-	$(CC) $^ -o $@.out -std=c11 -O0 -msse4.1 $(WFLAGS)
+	$(CC) $^ -o $@.out -std=c11 -O2 -msse4.1 $(WFLAGS)
 
 simd: $(SOURCE)
 	$(CC) $^ -o $@.out -std=c11 -O0 -msse4.1 $(WFLAGS)

@@ -14,12 +14,6 @@ void img_to_gray_scale(uint8_t* gray_map, const uint8_t* pix_map, size_t width, 
 }
 
 
-// TODO ??
-void img_to_gray_scale_LUT(void) {
-    return;
-}
-
-
 void img_to_gray_scale_SIMD(uint8_t* gray_map, const uint8_t* pix_map, size_t width, size_t height,
                                float a, float b, float c) {
     const __m128 a_coeff = _mm_set1_ps(a);

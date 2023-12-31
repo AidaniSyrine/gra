@@ -52,7 +52,7 @@ int test_and_set_input(char* path, const char* arg) {
         strncpy(path, arg, 512);
         return EXIT_SUCCESS;
     }
-    fprintf(stderr, "File does not exist or is not accessible: %s\n", arg);
+    fprintf(stderr, "File does not exist or is not accessible: %s.\n", arg);
     return EXIT_FAILURE;
 }
 
@@ -80,18 +80,18 @@ int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* hei
     int result;
     int fd;
     if ((fd = open(img_path, O_RDONLY)) < 0) {
-        fprintf(stderr, "Cannot open the file %s\n", img_path);
+        fprintf(stderr, "Cannot open the file %s.\n", img_path);
         return_defer(EXIT_FAILURE);
     }
   
     // Retrieve file stats
     struct stat statbuf;
     if (fstat(fd, &statbuf)) {
-        fprintf(stderr, "fstat() failed: %s\n", strerror(errno));
+        fprintf(stderr, "fstat() failed: %s.\n", strerror(errno));
         return_defer(EXIT_FAILURE);
     }
     if (!S_ISREG(statbuf.st_mode) || statbuf.st_size <= 0) {
-        fprintf(stderr, "Provided file: %s is not an empty or non regular file", img_path);
+        fprintf(stderr, "Provided file: %s is an empty or non regular file.\n", img_path);
         return_defer(EXIT_FAILURE);
     }
     // Load the file to the virtual address space
@@ -101,7 +101,7 @@ int read_img(const char* img_path, uint8_t** pix_map, size_t* width, size_t* hei
     // Check image's version
     char * ascii_data = (char *) img_ptr;
     if (ascii_data[0] != 'P' || ascii_data[1] != '6') {
-        fprintf(stderr, "Provided file: %s is not a PPM image.\n", img_path);
+        fprintf(stderr, "Provided file:\"%s\"is not a PPM (P6) image.\n", img_path);
         return_defer(EXIT_FAILURE);
     }
     ascii_data += 2;
