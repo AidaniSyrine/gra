@@ -121,6 +121,7 @@ int main(int argc, char* argv[]) {
         a = A; b = B; c = C;
     }
 
+
     // Read image
     size_t width, height;
     uint8_t color_depth, *pix_map = NULL;

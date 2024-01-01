@@ -15,7 +15,8 @@ void linear_interpolation(uint8_t* gray_map, size_t width, size_t height,
    for(size_t i = 0; i < width * height; i++) {
        if (gray_map[i] <= es) gray_map[i] = as;
        else if (gray_map[i] >= ew) gray_map[i] = aw;
-       else if (gray_map[i] <= em)
+       else if (gray_map[i] == em) gray_map[i] = am;
+       else if (gray_map[i] < em)
            gray_map[i] = as +  ((am - as) / (em - es)) * (gray_map[i] - es);
        else
            gray_map[i] = am + ((aw - am) / (ew - em)) * (gray_map[i] - em);
@@ -44,8 +45,6 @@ void linear_interpolation_LUT(uint8_t* gray_map, size_t width, size_t height,
     }
 }
 
-
-
 // TODO [-Woverflow]
 void linear_interpolation_SIMD(uint8_t* gray_map, size_t width, size_t height,
                                uint8_t es, uint8_t as, uint8_t em,
@@ -62,7 +61,7 @@ void linear_interpolation_SIMD(uint8_t* gray_map, size_t width, size_t height,
 
     size_t size = width * height;
     size_t i =0;
-    for (i = 0; i < size - (size % 16); i += 16) {
+    for (i = 144; i < 145; i += 16) {
         //loading 16 bytes
         __m128i simd_gray = _mm_loadu_si128((__m128i*)(gray_map+i));
 
@@ -70,14 +69,15 @@ void linear_interpolation_SIMD(uint8_t* gray_map, size_t width, size_t height,
         __m128i mask_es = _mm_cmpgt_epi16(_mm_unpacklo_epi8(simd_gray, _mm_setzero_si128()), simd_es);
         mask_es = _mm_packs_epi16 (mask_es,_mm_cmpgt_epi16(_mm_unpackhi_epi8(simd_gray,
                                                                              _mm_setzero_si128()), simd_es));
-        mask_es = _mm_andnot_si128(mask_es, _mm_set1_epi8(0xff));
+        mask_es = _mm_andnot_si128(mask_es, _mm_set1_epi8((uint8_t)0xff));
         __m128i result = _mm_blendv_epi8(simd_gray, _mm_set1_epi8(0),  mask_es);
 
         // change bytes >ew to 0
         __m128i mask_ew = _mm_cmplt_epi16(_mm_unpacklo_epi8(result, _mm_setzero_si128()), simd_ew);
         mask_ew = _mm_packs_epi16 (mask_ew,_mm_cmplt_epi16(_mm_unpackhi_epi8(result,
                                                                              _mm_setzero_si128()), simd_ew));
-        mask_ew = _mm_andnot_si128(mask_ew, _mm_set1_epi8(0xff));
+        mask_ew = _mm_andnot_si128(mask_ew, _mm_set1_epi8((uint8_t)0xff));
+
         result = _mm_blendv_epi8(result, _mm_set1_epi8(0),  mask_ew);
 
         // register of adequat factors
@@ -86,7 +86,7 @@ void linear_interpolation_SIMD(uint8_t* gray_map, size_t width, size_t height,
                                                                                  _mm_setzero_si128()), simd_em));
 
         __m128i factors = _mm_and_si128(mask_ltem, simd_factor1 ) ;
-        __m128i mask_getem =_mm_andnot_si128(mask_ltem, _mm_set1_epi8(0xff));
+        __m128i mask_getem =_mm_andnot_si128(mask_ltem, _mm_set1_epi8((uint8_t)0xff));
 
         factors = _mm_or_si128(factors, _mm_and_si128(mask_getem, simd_factor2 ) );
 
@@ -141,7 +141,8 @@ void bilinear_interpolation(uint8_t* gray_map, size_t width, size_t height,
     for(size_t i = 0; i < width * height; i++) {
         if (gray_map[i] <= es) gray_map[i] = as;
         else if (gray_map[i] >= ew) gray_map[i] = aw;
-        else if (gray_map[i] <= em) {
+        else if (gray_map[i] == em) gray_map[i] = am;
+        else if (gray_map[i] < em) {
             uint8_t first_inter = as +  ((am - as) / (em - es)) * (gray_map[i] - es);
             uint8_t second_inter = as + ((aw - as) / (ew - es)) * (gray_map[i] - es);
             gray_map[i] = (first_inter + second_inter) / 2;

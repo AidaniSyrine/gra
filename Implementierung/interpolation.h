@@ -3,12 +3,13 @@
 //
 
 #pragma once
-
+#include <stdio.h> 
 #include <inttypes.h>
 #include <stdlib.h>
 #include <immintrin.h>
 
-
+void print_simdps(__m128 simd_variable) ;
+void print_simd(__m128i simd_variable);
 
 /**
  *
