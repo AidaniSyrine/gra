@@ -8,8 +8,13 @@
 #include <stdlib.h>
 #include <immintrin.h>
 
-void print_simdps(__m128 simd_variable) ;
-void print_simd(__m128i simd_variable);
+void quadratic_interpolation_BLagrange_LUT(uint8_t* gray_map, size_t width, size_t height,
+                                       uint8_t es, uint8_t as, uint8_t em,
+                                       uint8_t am, uint8_t ew, uint8_t aw);
+
+void quadratic_interpolation_Newton_LUT(uint8_t* gray_map, size_t width, size_t height,
+                                    uint8_t es, uint8_t as, uint8_t em,
+                                    uint8_t am, uint8_t ew, uint8_t aw) ;
 
 /**
  *

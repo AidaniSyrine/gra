@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
 
 
     // Read options
-    char valid_args[3];
+    float valid_args[3];
     while((option = getopt_long(argc, argv, "-HO:V:B::ho:v:b::", longopts, &option_index)) != EOF) {
             switch(option) {
                 case 0: // Handle longopts
@@ -132,7 +132,6 @@ int main(int argc, char* argv[]) {
     // Allocate memory for the new grayscale 2D image
     uint8_t* gray_map = (uint8_t *) malloc(width * height);
     if (!gray_map) goto mem_error;
-
 
     // Adjustments
 

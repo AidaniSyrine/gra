@@ -61,7 +61,7 @@ void linear_interpolation_SIMD(uint8_t* gray_map, size_t width, size_t height,
 
     size_t size = width * height;
     size_t i =0;
-    for (i = 144; i < 145; i += 16) {
+    for (i = 0; i < size - (size % 16); i += 16) {
         //loading 16 bytes
         __m128i simd_gray = _mm_loadu_si128((__m128i*)(gray_map+i));
 
@@ -154,7 +154,34 @@ void bilinear_interpolation(uint8_t* gray_map, size_t width, size_t height,
     }
 }
 
+void bilinear_interpolation_LUT(uint8_t* gray_map, size_t width, size_t height,
+                                uint8_t es, uint8_t as, uint8_t em,
+                                uint8_t am, uint8_t ew, uint8_t aw) {
+    //Intialising LUT
+    short lut[256];
+    for (int i = 0; i < 256; ++i) lut[i] = -1;
 
+    for(size_t i = 0; i < width * height; i++) {
+        if (lut[gray_map[i]]!= -1) gray_map[i]=lut[gray_map[i]];
+        else {
+            uint8_t prev =gray_map[i];
+            if (gray_map[i] <= es) gray_map[i] = as;
+            else if (gray_map[i] >= ew) gray_map[i] = aw;
+            else if (gray_map[i] == em) gray_map[i] = am;
+            else if (gray_map[i] < em) {
+                uint8_t first_inter = as +  ((am - as) / (em - es)) * (gray_map[i] - es);
+                uint8_t second_inter = as + ((aw - as) / (ew - es)) * (gray_map[i] - es);
+                gray_map[i] = (first_inter + second_inter) / 2;
+            } else {
+                uint8_t first_inter = am + ((aw - am) / (ew - em)) * (gray_map[i] - em);
+                uint8_t second_inter = as + ((aw - as) / (ew - es)) * (gray_map[i] - es);
+                gray_map[i] = (first_inter + second_inter) / 2;
+            }
+            lut[prev]=gray_map[i];
+        }
+
+    }
+}
 
 
 // --------------------------- Quadratic Interpolation --------------------------------------
@@ -173,6 +200,7 @@ void quadratic_interpolation_LS(uint8_t* gray_map, size_t width, size_t height,
     for (size_t i = 0; i< width * height; i++) {
         if (gray_map[i] <= es) gray_map[i] = as;
         else if (gray_map[i] >= ew) gray_map[i] = aw;
+        else if (gray_map[i] == em) gray_map[i] = am;
         else gray_map[i] = s1 * gray_map[i] * gray_map[i] + s2 * gray_map[i] + s3;
     }
 }
@@ -252,6 +280,7 @@ void quadratic_interpolation_LS_SIMD(uint8_t* gray_map, size_t width, size_t hei
     for(; i < width * height; i++){
         if (gray_map[i] <= es) gray_map[i] = as;
         else if (gray_map[i] >= ew) gray_map[i] = aw;
+        else if (gray_map[i] == em) gray_map[i] = am;
         else {
             float tmp = s1 * gray_map[i] * gray_map[i];
             float tmp1 = s2*gray_map[i];
@@ -260,8 +289,6 @@ void quadratic_interpolation_LS_SIMD(uint8_t* gray_map, size_t width, size_t hei
     }
 
 }
-
-
 
 //Double ??
 void quadratic_interpolation_BLagrange(uint8_t* gray_map, size_t width, size_t height,
@@ -287,6 +314,7 @@ void quadratic_interpolation_BLagrange(uint8_t* gray_map, size_t width, size_t h
     for (size_t i = 0; i < width * height; i++) {
         if (gray_map[i] <= es) gray_map[i] = as;
         else if (gray_map[i] >= ew) gray_map[i] = aw;
+        else if (gray_map[i] == em) gray_map[i] = am;
         else
         {
             numerator = denomirator = 0;
@@ -298,6 +326,50 @@ void quadratic_interpolation_BLagrange(uint8_t* gray_map, size_t width, size_t h
         }
     }
 }
+
+void quadratic_interpolation_BLagrange_LUT(uint8_t* gray_map, size_t width, size_t height,
+                                       uint8_t es, uint8_t as, uint8_t em,
+                                       uint8_t am, uint8_t ew, uint8_t aw) {
+    // Just for code readability and convenience
+    uint8_t x[] = {es, em, ew};
+    uint8_t y[] = {as, am, aw};
+    float bary_weights[3], numerator, denomirator;
+    int product;
+
+    // Compute barycentric weights
+    for (size_t i = 0; i < sizeof (bary_weights) / sizeof (*bary_weights); i++) {
+        product = 1;
+        for (size_t j = 0; j < sizeof (x) / sizeof (*x); j++) {
+            if (i == j) continue;
+            product *= x[i] - x[j];
+        }
+        bary_weights[i] = 1.f / (float) product;
+    }
+    //Intialising LUT
+    short lut[256];
+    for (int i = 0; i < 256; ++i) lut[i] = -1;
+
+    // Barycentric lagrange interpolation
+    for (size_t i = 0; i < width * height; i++) {
+        if (lut[gray_map[i]]!= -1) gray_map[i]=lut[gray_map[i]];
+        else {
+            uint8_t prev =gray_map[i];
+            if (gray_map[i] <= es) gray_map[i] = as;
+            else if (gray_map[i] >= ew) gray_map[i] = aw;
+            else if (gray_map[i] == em) gray_map[i] = am;
+            else {
+                numerator = denomirator = 0;
+                for (size_t j = 0; j < sizeof (bary_weights) / sizeof (*bary_weights); j++) {
+                    numerator += (bary_weights[j] / (float) (gray_map[i] - x[j])) * (float) y[j];
+                    denomirator += (bary_weights[j]) / (float) (gray_map[i] - x[j]);
+                }
+                gray_map[i] = (uint8_t) (numerator / denomirator);
+            }
+            lut[prev]=gray_map[i];
+        }
+    }
+}
+
 
 
 void quadratic_interpolation_Newton(uint8_t* gray_map, size_t width, size_t height,
@@ -318,9 +390,45 @@ void quadratic_interpolation_Newton(uint8_t* gray_map, size_t width, size_t heig
     for(size_t i = 0; i < width * height; i++) {
         if (gray_map[i] <= es) gray_map[i] = as;
         else if (gray_map[i] >= ew) gray_map[i] = aw;
+        else if (gray_map[i] == em) gray_map[i] = am;
         else gray_map[i] = diff_table[0][0] + diff_table[0][1] * (gray_map[i] - x[0])
                 + diff_table[0][2] * (gray_map[i] - x[0]) * (gray_map[i] - x[1]);
     }
 }
+
+void quadratic_interpolation_Newton_LUT(uint8_t* gray_map, size_t width, size_t height,
+                                    uint8_t es, uint8_t as, uint8_t em,
+                                    uint8_t am, uint8_t ew, uint8_t aw) {
+
+    // Just for code readability and convenience
+    uint8_t x[] = {es, em, ew};
+    uint8_t diff_table[][3] = {{as}, {am}, {aw}};
+
+    // Compute Newton coeffs
+    for (size_t i = 1; i < sizeof (diff_table) / sizeof (*diff_table); i++) {
+        for (size_t j = 0; j < (sizeof(*diff_table) / sizeof(**diff_table)) - i; j++) {
+            diff_table[j][i]  = (diff_table[j + 1][i -1] - diff_table[j][i - 1]) / (x[i +j] - x[j]);
+        }
+    }
+     //Intialising LUT
+    short lut[256];
+    for (int i = 0; i < 256; ++i) lut[i] = -1;
+
+    // Newton interpolation
+    for(size_t i = 0; i < width * height; i++) {
+        if (lut[gray_map[i]]!= -1) gray_map[i]=lut[gray_map[i]];
+        else {
+            uint8_t prev =gray_map[i];
+             if (gray_map[i] <= es) gray_map[i] = as;
+            else if (gray_map[i] >= ew) gray_map[i] = aw;
+            else if (gray_map[i] == em) gray_map[i] = am;
+            else gray_map[i] = diff_table[0][0] + diff_table[0][1] * (gray_map[i] - x[0])
+                + diff_table[0][2] * (gray_map[i] - x[0]) * (gray_map[i] - x[1]);
+             lut[prev]=gray_map[i];
+        }
+    }
+}
+
+
 
 
