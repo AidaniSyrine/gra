@@ -190,18 +190,19 @@ void quadratic_interpolation_LS(uint8_t* gray_map, size_t width, size_t height,
                                 uint8_t es, uint8_t as, uint8_t em,
                                 uint8_t am, uint8_t ew, uint8_t aw) {
 
+    float asf=as; float amf=am; float awf=aw; float esf=es; float emf=em; float ewf=ew;
     // Solving LS using Gaussian Elimination
-    float s1 = (float) (as - aw) * (es - ew) - (as - aw) * (es - em)
-            / (float) (es * es - em * em) * (es - ew) - (es * es-ew * ew) * (es - em);
-    float s2 = (float) (as - am) * (es - ew) - s1 * (es * es - em * em) * (es - ew)
-            / (float)(es - em) * (es - ew);
-    float s3 = as - s1 * es * es - s2 * es;
+    float s1 = (float) (((asf - amf) * (esf - ewf)) - ((asf - awf) * (esf - emf)))
+            / (float)((((esf * esf) - (emf * emf))* (esf - ewf)) - (((esf * esf)- (ewf * ewf)) * (esf - emf)));
+    float s2 = (float) (((asf - amf) * (esf - ewf) )- (s1 * ((esf * esf) - (emf * emf)) * (esf - ewf)))
+            / (float)((esf - emf) * (esf - ewf));
+    float s3 = asf - s1 * esf * esf - s2 * esf;
 
-    for (size_t i = 0; i< width * height; i++) {
+    for (size_t i = 0; i< width*height; i++) {
         if (gray_map[i] <= es) gray_map[i] = as;
         else if (gray_map[i] >= ew) gray_map[i] = aw;
         else if (gray_map[i] == em) gray_map[i] = am;
-        else gray_map[i] = s1 * gray_map[i] * gray_map[i] + s2 * gray_map[i] + s3;
+        else gray_map[i] = (uint8_t)(s1 * (float)gray_map[i] * (float)gray_map[i] + s2 * (float)gray_map[i] + s3);
     }
 }
 
@@ -209,12 +210,13 @@ void quadratic_interpolation_LS_LUT(uint8_t* gray_map, size_t width, size_t heig
                                     uint8_t es, uint8_t as, uint8_t em,
                                     uint8_t am, uint8_t ew, uint8_t aw) {
 
+    float asf=as; float amf=am; float awf=aw; float esf=es; float emf=em; float ewf=ew;
     // Solving LS using Gaussian Elimination
-    float s1 = (float) (as - aw) * (es - ew) - (as - aw) * (es - em)
-            / (float) (es * es - em * em) * (es - ew) - (es * es-ew * ew) * (es - em);
-    float s2 = (float) (as - am) * (es - ew) - s1 * (es * es - em * em) * (es - ew)
-            / (float)(es - em) * (es - ew);
-    float s3 = as - s1 * es * es - s2 * es;
+    float s1 = (float) (((asf - amf) * (esf - ewf)) - ((asf - awf) * (esf - emf)))
+            / (float)((((esf * esf) - (emf * emf))* (esf - ewf)) - (((esf * esf)- (ewf * ewf)) * (esf - emf)));
+    float s2 = (float) (((asf - amf) * (esf - ewf) )- (s1 * ((esf * esf) - (emf * emf)) * (esf - ewf)))
+            / (float)((esf - emf) * (esf - ewf));
+    float s3 = asf - s1 * esf * esf - s2 * esf;
 
     //Intialising LUT
     short lut[256];
@@ -228,11 +230,7 @@ void quadratic_interpolation_LS_LUT(uint8_t* gray_map, size_t width, size_t heig
             if (gray_map[i] <= es)  gray_map[i] = as;
             else if (gray_map[i] >= ew)  gray_map[i] = aw;
             else if (gray_map[i] == em)  gray_map[i] = am;
-            else {
-                float tmp = s1 * gray_map[i] * gray_map[i];
-                float tmp1 = s2 * gray_map[i];
-                gray_map[i] = tmp + tmp1 + s3;
-            }
+            else gray_map[i] = (uint8_t)(s1 * (float)gray_map[i] * (float)gray_map[i] + s2 * (float)gray_map[i] + s3);
             lut[prev]=gray_map[i];
         }
     }
@@ -249,12 +247,13 @@ void quadratic_interpolation_LS_SIMD(uint8_t* gray_map, size_t width, size_t hei
     __m128 ewVec = _mm_set_ps1((float)ew);
     __m128 awVec = _mm_set_ps1((float)aw);
 
+    float asf=as; float amf=am; float awf=aw; float esf=es; float emf=em; float ewf=ew;
     // Solving LS using Gaussian Elimination
-    float s1 = (float) (as - aw) * (es - ew) - (as - aw) * (es - em)
-            / (float) (es * es - em * em) * (es - ew) - (es * es-ew * ew) * (es - em);
-    float s2 = (float) (as - am) * (es - ew) - s1 * (es * es - em * em) * (es - ew)
-            / (float)(es - em) * (es - ew);
-    float s3 = as - s1 * es * es - s2 * es;
+    float s1 = (float) (((asf - amf) * (esf - ewf)) - ((asf - awf) * (esf - emf)))
+            / (float)((((esf * esf) - (emf * emf))* (esf - ewf)) - (((esf * esf)- (ewf * ewf)) * (esf - emf)));
+    float s2 = (float) (((asf - amf) * (esf - ewf) )- (s1 * ((esf * esf) - (emf * emf)) * (esf - ewf)))
+            / (float)((esf - emf) * (esf - ewf));
+    float s3 = asf - s1 * esf * esf - s2 * esf;
 
     __m128 s1Vec =_mm_set_ps1(s1);
     __m128 s2Vec =_mm_set_ps1(s2);
@@ -281,11 +280,8 @@ void quadratic_interpolation_LS_SIMD(uint8_t* gray_map, size_t width, size_t hei
         if (gray_map[i] <= es) gray_map[i] = as;
         else if (gray_map[i] >= ew) gray_map[i] = aw;
         else if (gray_map[i] == em) gray_map[i] = am;
-        else {
-            float tmp = s1 * gray_map[i] * gray_map[i];
-            float tmp1 = s2*gray_map[i];
-            gray_map[i] = tmp+tmp1+s3;
-        }
+        else gray_map[i] = (uint8_t)(s1 * (float)gray_map[i] * (float)gray_map[i] + s2 * (float)gray_map[i] + s3);
+
     }
 
 }
@@ -386,6 +382,8 @@ void quadratic_interpolation_Newton(uint8_t* gray_map, size_t width, size_t heig
             diff_table[j][i]  = (diff_table[j + 1][i -1] - diff_table[j][i - 1]) / (x[i +j] - x[j]);
         }
     }
+        printf("00 %hhu 01  %hhu 02 %hhu\n", diff_table[0][0],diff_table[0][1],diff_table[0][2]); 
+
     // Newton interpolation
     for(size_t i = 0; i < width * height; i++) {
         if (gray_map[i] <= es) gray_map[i] = as;
