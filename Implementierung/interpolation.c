@@ -4,8 +4,6 @@
 #include "interpolation.h"
 
 
-
-
 // --------------------------- Linear Interpolation --------------------------------------
 
 void linear_interpolation(uint8_t* gray_map, size_t width, size_t height,
@@ -246,6 +244,8 @@ void quadratic_interpolation_LS_SIMD(uint8_t* gray_map, size_t width, size_t hei
     __m128 asVec = _mm_set_ps1((float)as);
     __m128 ewVec = _mm_set_ps1((float)ew);
     __m128 awVec = _mm_set_ps1((float)aw);
+    __m128 emVec = _mm_set_ps1((float)em);
+    __m128 amVec = _mm_set_ps1((float)am);
 
     float asf=as; float amf=am; float awf=aw; float esf=es; float emf=em; float ewf=ew;
     // Solving LS using Gaussian Elimination
@@ -266,11 +266,14 @@ void quadratic_interpolation_LS_SIMD(uint8_t* gray_map, size_t width, size_t hei
                                       (float)gray_map[i+1],(float)gray_map[i]);
         __m128 condition1 = _mm_cmple_ps(grayMapVec, esVec);
         __m128 condition2 = _mm_cmpge_ps(grayMapVec, ewVec);
+        __m128 condition3 = _mm_cmpeq_ps(grayMapVec, emVec);
         __m128 potentialResult = _mm_add_ps(_mm_mul_ps(s1Vec, _mm_mul_ps(grayMapVec, grayMapVec)),
                                             _mm_add_ps(_mm_mul_ps(s2Vec, grayMapVec), s3Vec));
         __m128 result = _mm_blendv_ps( _mm_blendv_ps(potentialResult,awVec,condition2),asVec,condition1);
-        __m128i pack1 = _mm_packus_epi16(_mm_cvttps_epi32(result),_mm_cvttps_epi32(result));
-        __m128i pack =  _mm_packus_epi16(pack1,pack1);
+        result = _mm_blendv_ps(result,amVec,condition3);
+
+        __m128i pack1 = _mm_packus_epi32(_mm_cvttps_epi32(result),_mm_setzero_si128());
+        __m128i pack =  _mm_packus_epi16(pack1,_mm_setzero_si128());
 
         _mm_storeu_si32((__m128i*)&gray_map[i], pack);
     }
@@ -373,8 +376,8 @@ void quadratic_interpolation_Newton(uint8_t* gray_map, size_t width, size_t heig
                                     uint8_t am, uint8_t ew, uint8_t aw) {
 
     // Just for code readability and convenience
-    uint8_t x[] = {es, em, ew};
-    uint8_t diff_table[][3] = {{as}, {am}, {aw}};
+    float x[] = {es, em, ew};
+    float diff_table[][3] = {{as}, {am}, {aw}};
 
     // Compute Newton coeffs
     for (size_t i = 1; i < sizeof (diff_table) / sizeof (*diff_table); i++) {
@@ -382,15 +385,14 @@ void quadratic_interpolation_Newton(uint8_t* gray_map, size_t width, size_t heig
             diff_table[j][i]  = (diff_table[j + 1][i -1] - diff_table[j][i - 1]) / (x[i +j] - x[j]);
         }
     }
-        printf("00 %hhu 01  %hhu 02 %hhu\n", diff_table[0][0],diff_table[0][1],diff_table[0][2]); 
 
     // Newton interpolation
     for(size_t i = 0; i < width * height; i++) {
         if (gray_map[i] <= es) gray_map[i] = as;
         else if (gray_map[i] >= ew) gray_map[i] = aw;
         else if (gray_map[i] == em) gray_map[i] = am;
-        else gray_map[i] = diff_table[0][0] + diff_table[0][1] * (gray_map[i] - x[0])
-                + diff_table[0][2] * (gray_map[i] - x[0]) * (gray_map[i] - x[1]);
+        else gray_map[i] = (uint8_t)(diff_table[0][0] + diff_table[0][1] * ((float)gray_map[i] - x[0])
+                + diff_table[0][2] * ((float)gray_map[i] - x[0]) * ((float)gray_map[i] - x[1]));
     }
 }
 
@@ -399,8 +401,8 @@ void quadratic_interpolation_Newton_LUT(uint8_t* gray_map, size_t width, size_t 
                                     uint8_t am, uint8_t ew, uint8_t aw) {
 
     // Just for code readability and convenience
-    uint8_t x[] = {es, em, ew};
-    uint8_t diff_table[][3] = {{as}, {am}, {aw}};
+    float x[] = {es, em, ew};
+    float diff_table[][3] = {{as}, {am}, {aw}};
 
     // Compute Newton coeffs
     for (size_t i = 1; i < sizeof (diff_table) / sizeof (*diff_table); i++) {
@@ -420,13 +422,73 @@ void quadratic_interpolation_Newton_LUT(uint8_t* gray_map, size_t width, size_t 
              if (gray_map[i] <= es) gray_map[i] = as;
             else if (gray_map[i] >= ew) gray_map[i] = aw;
             else if (gray_map[i] == em) gray_map[i] = am;
-            else gray_map[i] = diff_table[0][0] + diff_table[0][1] * (gray_map[i] - x[0])
-                + diff_table[0][2] * (gray_map[i] - x[0]) * (gray_map[i] - x[1]);
+            else gray_map[i] = (uint8_t)(diff_table[0][0] + diff_table[0][1] * ((float)gray_map[i] - x[0])
+                + diff_table[0][2] * ((float)gray_map[i] - x[0]) * ((float)gray_map[i] - x[1]));
              lut[prev]=gray_map[i];
         }
     }
 }
 
+void quadratic_interpolation_Newton_SIMD(uint8_t* gray_map, size_t width, size_t height,
+                                    uint8_t es, uint8_t as, uint8_t em,
+                                    uint8_t am, uint8_t ew, uint8_t aw) {
 
+    // Just for code readability and convenience
+    float x[] = {es, em, ew};
+    float diff_table[][3] = {{as}, {am}, {aw}};
+
+    // Compute Newton coeffs
+    for (size_t i = 1; i < sizeof (diff_table) / sizeof (*diff_table); i++) {
+        for (size_t j = 0; j < (sizeof(*diff_table) / sizeof(**diff_table)) - i; j++) {
+            diff_table[j][i]  = (diff_table[j + 1][i -1] - diff_table[j][i - 1]) / (x[i +j] - x[j]);
+        }
+    }
+    __m128 x0Vec =_mm_set_ps1(x[0]);
+    __m128 x1Vec =_mm_set_ps1(x[1]);
+    __m128 c0Vec =_mm_set_ps1(diff_table[0][0]);
+    __m128 c1Vec =_mm_set_ps1(diff_table[0][1]);
+    __m128 c2Vec =_mm_set_ps1(diff_table[0][2]);
+    __m128 esVec = _mm_set_ps1((float)es);
+    __m128 asVec = _mm_set_ps1((float)as);
+    __m128 ewVec = _mm_set_ps1((float)ew);
+    __m128 awVec = _mm_set_ps1((float)aw);
+    __m128 emVec = _mm_set_ps1((float)em);
+    __m128 amVec = _mm_set_ps1((float)am);
+
+    size_t i;
+    size_t size;
+    for (i = 0; i < size - (size%4); i += 4){
+        __m128 grayMapVec= _mm_set_ps((float)gray_map[i+3],(float)gray_map[i+2],
+                                      (float)gray_map[i+1],(float)gray_map[i]);
+        __m128 condition1 = _mm_cmple_ps(grayMapVec, esVec);
+        __m128 condition2 = _mm_cmpge_ps(grayMapVec, ewVec);
+        __m128 condition3 = _mm_cmpeq_ps(grayMapVec, emVec);
+
+        __m128 potentialResult = _mm_add_ps(_mm_mul_ps(c1Vec, _mm_sub_ps(grayMapVec, x0Vec)),
+                                            _mm_add_ps(_mm_mul_ps(c2Vec, _mm_mul_ps(_mm_sub_ps(grayMapVec, x1Vec), _mm_sub_ps(grayMapVec, x0Vec))), c0Vec));
+        __m128 result = _mm_blendv_ps( _mm_blendv_ps(potentialResult,awVec,condition2),asVec,condition1);
+        result = _mm_blendv_ps(result,amVec,condition3);
+        __m128i pack1 = _mm_packus_epi32(_mm_cvttps_epi32(result),_mm_setzero_si128());
+        __m128i pack =  _mm_packus_epi16(pack1,_mm_setzero_si128());
+
+        _mm_storeu_si32((__m128i*)&gray_map[i], pack);
+    }
+
+   // Calculating remainig pixels iteratively
+    for(; i < width * height; i++){
+        if (gray_map[i] <= es) gray_map[i] = as;
+        else if (gray_map[i] >= ew) gray_map[i] = aw;
+        else if (gray_map[i] == em) gray_map[i] = am;
+        else gray_map[i] = (uint8_t)(diff_table[0][0] + (diff_table[0][1] * ((float)gray_map[i] - x[0]))
+                + (diff_table[0][2] * ((float)gray_map[i] - x[0]) * ((float)gray_map[i] - x[1])));
+    }
+}
+
+
+
+    
+
+    
+       
 
 
