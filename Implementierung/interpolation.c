@@ -2,7 +2,8 @@
 // Created by Adem Trabelsi on 21.12.23.
 //
 #include "interpolation.h"
-
+#include<stdio.h>
+#include<math.h>
 
 // --------------------------- Linear Interpolation --------------------------------------
 
@@ -195,6 +196,7 @@ void quadratic_interpolation_LS(uint8_t* gray_map, size_t width, size_t height,
     float s2 = (float) (((asf - amf) * (esf - ewf) )- (s1 * ((esf * esf) - (emf * emf)) * (esf - ewf)))
             / (float)((esf - emf) * (esf - ewf));
     float s3 = asf - s1 * esf * esf - s2 * esf;
+    printf("s1 %f s2 %f s3 %f\n ",s1,s2,s3);
 
     for (size_t i = 0; i< width*height; i++) {
         if (gray_map[i] <= es) gray_map[i] = as;
@@ -484,11 +486,45 @@ void quadratic_interpolation_Newton_SIMD(uint8_t* gray_map, size_t width, size_t
     }
 }
 
-
-
+int isinbound (float es, float as, float em, float am, float ew, float aw) {
+    //cases aw = as
+    if (aw == as && aw == 255) {
+        float a = 1020 / ((es + ew) * (es + ew)); 
+        float root = (es + ew)/2;
+        float em_min = a * (em - root) * (em - root);
+        if (em_min > am ) return EXIT_FAILURE;
+    }
+     if (aw == as && aw == 0) {
+        float a = -1020 / ((es + ew) * (es + ew)); 
+        float em_max = a * (em - es) * (em - ew);
+        if (em_max < am ) return EXIT_FAILURE;
+    }
     
+    //assume max_x < ew thus -sqrt
+    float max_x = es - ((ew - es) / (- sqrtf ((aw - 255) / (as - 255)) - 1));
+    float a_upper = (as - 255) / ((es - max_x) * (es - max_x));
+    float b_upper = -2 * a_upper * max_x;
+    float c_upper = 255 + a_upper * max_x * max_x;
+    float em_max = (a_upper * em * em) + (b_upper * em) + c_upper;
+    if (em_max < am ) return EXIT_FAILURE;
 
-    
+    //assume min_x > es thus -sqrt
+    float min_x = ew - ((es - ew) / (- sqrtf ((as / aw)) - 1));
+    float a_lower = aw  / ((ew - min_x ) * (ew - min_x ));
+    float b_lower = -2 * a_lower * min_x;
+    float c_lower =  a_lower * min_x * min_x;
+    float em_min = (a_lower * em * em) + (b_lower * em) + c_lower;
+    if (em_min > am ) return EXIT_FAILURE;
+
+    return EXIT_SUCCESS;
+}
+
+
+// case simd : always call 1. quadratic simd 2. linear simd 
+//             add mask at then end to restore value before em quadratic / after em linear
+// ->> double aufwand ( 2 iterations each pixel)
+// case non simd / LUT : make new method as a combination of quadratic and linear and modify the if blocks 
+// ->> no change in laufzeit 
        
 
 

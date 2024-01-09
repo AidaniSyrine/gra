@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
 
     // Check if the input is valid
     if (sflag && mflag && wflag)
-            if (es > ew || es> em || ew < em || as > aw || as > am || aw < am) goto arg_error;
+      if (es > ew || es> em || ew < em || as > aw || as > am || aw < am) goto arg_error;
 
     // Setting Default value
     if (!sflag)  es = as = AS;
@@ -134,7 +134,6 @@ int main(int argc, char* argv[]) {
     if (!gray_map) goto mem_error;
 
     // Adjustments
-
     double start = curtime();
     double time;
     for (int i = 0; i < iterations; i++)
