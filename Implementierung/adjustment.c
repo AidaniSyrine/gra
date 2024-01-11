@@ -3,13 +3,15 @@
 //
 
 #include "adjustment.h"
-
+#include "io_operations.h"
 
 
 void levels_adjustment(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
                        uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result) {
     img_to_gray_scale_SIMD(result, img, width, height, a, b, c);
-    linear_interpolation_SIMD(result, width, height, es, as, em, am, ew, aw);
+    int outbound = isoutbound(es, as, em, am, ew, aw);
+    if (outbound) quadratic_interpolation_Newton_SIMD(result, width, height, es, as, em, am, ew, aw);
+    else linear_interpolation_SIMD(result, width, height, es, as, em, am, ew, aw);
 }
 
 void levels_adjustment_V1(const uint8_t* img, size_t width, size_t height, float a, float b, float c,

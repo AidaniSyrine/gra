@@ -172,6 +172,24 @@ int write_img(const char *img_path, const uint8_t* pix_map,  size_t width, size_
     return result;
 }
 
+int isoutbound (float es, float as, float em, float am, float ew, float aw) {
+    
+    //upper bound
+    float a_upper = (as - aw) / ((es - ew) * (es - ew));
+    float b_upper = -2 * a_upper * ew;
+    float c_upper = aw + (a_upper * ew * ew);
+    float em_max = (a_upper * em * em) + (b_upper * em) + c_upper;
+    if (em_max < am ) return EXIT_FAILURE;
+
+    //lower bound
+    float a_lower = - a_upper;
+    float b_lower = -2 * a_lower * es;
+    float c_lower = as + (a_lower * es * es);
+    float em_min = (a_lower * em * em) + (b_lower * em) + c_lower;
+    if (em_min > am ) return EXIT_FAILURE;
+
+    return EXIT_SUCCESS;
+}
 
 // TODO
 void print_help(void){
@@ -195,3 +213,4 @@ void print_help(void){
          "  -h|--help                           ---\n"
          );
 }
+
