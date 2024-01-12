@@ -8,37 +8,34 @@ SOURCE = $(wildcard *.c)
 
 # Flags
 WFLAGS = -Wall -Wextra -Wpedantic
-# Compile with disabled optimisation
+# Compile with moderate optimisation
 tonwertkorrektur: $(SOURCE)
-	$(CC) $^ -o $@.out -std=c11 -O2 -msse4.1 $(WFLAGS)
-
-simd: $(SOURCE)
 	$(CC) $^ -o $@.out -std=c11 -O0 -msse4.1 $(WFLAGS)
 
 # Compile for efficency Testing
 opt: $(SOURCE)
-	$(CC) $^ -o $@.out -std=c11 -O3 $(WFLAGS)
+	$(CC) $^ -o $@.out -std=c11 -O3 -msse4.1 $(WFLAGS)
 
 # Compile with address sanitizer enabled
 asan: $(SOURCE)
-	$(CC) $^ -o $@.out -std=c11 -O0 $(WFLAGS) -Werror -fsanitize=address
+	$(CC) $^ -o $@.out -std=c11 -O0 -msse4.1 $(WFLAGS) -Werror -fsanitize=address
 
 # Compile with UB sanitizer enabled
 ubsan: $(SOURCE)
-	$(CC) $^ -o $@.out -std=c11 -O0 $(WFLAGS) -Werror -fsanitize=undefined
+	$(CC) $^ -o $@.out -std=c11 -O0 -msse4.1 $(WFLAGS) -Werror -fsanitize=undefined
 
 # Compile with leak sanitzer enabled
 lsan: $(SOURCE)
-	$(CC) $^ -o $@.out -std=c11 -O0 $(WFLAGS) -Werror -fsanitize=leak
+	$(CC) $^ -o $@.out -std=c11 -O0 -msse4.1 $(WFLAGS) -Werror -fsanitize=leak
 
 # Compile with GCC static Analysis enabled (Test Phase)
 staticana: $(SOURCE)
-	$(CC) $^ -o $@.out -std=c11 -O0 $(WFLAGS) -Werror -fanalyzer
+	$(CC) $^ -o $@.out -std=c11 -O0 -msse4.1 $(WFLAGS) -Werror -fanalyzer
 
 # Set the debugging flag
 debug: $(SOURCE)
-	$(CC) $^ -o $@.out -std=c11 -O0 $(WFLAGS) -g
+	$(CC) $^ -o $@.out -std=c11 -O0 -msse4.1 $(WFLAGS) -g
 
 clean:
-	rm -f $(wildcard *.out) *.dSYM
+	rm -f $(wildcard *.out) *.dSYM *.data *.old
 	find . -type f -name "*.pgm" -delete

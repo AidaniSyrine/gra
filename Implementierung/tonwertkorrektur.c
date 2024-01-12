@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
                         case 'c':
                             if (test_and_set_largs(valid_args, &optarg, cflag)) goto arg_error;
                             a = valid_args[0]; b = valid_args[1]; c = valid_args[2];
-                            printf("a = %f, b = %f, c = %f, d = %f \n", a, b, c); 
+                            printf("a = %f, b = %f, c = %f\n", a, b, c); 
                             break;
                         case 's':
                             if (test_and_set_largs(valid_args, &optarg, sflag)) goto arg_error;
@@ -59,12 +59,12 @@ int main(int argc, char* argv[]) {
                         case 'm':
                             if (test_and_set_largs(valid_args, &optarg, mflag)) goto arg_error;
                             em = (uint8_t) valid_args[0]; am = (uint8_t) valid_args[1];
-                            printf("em = %hhu, am = %hhu\n", es, as);
+                            printf("em = %hhu, am = %hhu\n", em, am);
                             break;
                         case 'w':
                             if (test_and_set_largs(valid_args, &optarg, wflag)) goto arg_error;
                             ew = (uint8_t) valid_args[0]; aw = (uint8_t) valid_args[1];
-                            printf("ew = %hhu, aw = %hhu\n", es, as);
+                            printf("ew = %hhu, aw = %hhu\n", ew, aw);
                             break;
                         case '?':
                             puts("UNREACHABLE!");
@@ -182,8 +182,8 @@ int main(int argc, char* argv[]) {
     write_img(output_img_path, gray_map, width, height, 255, output_flag);
 
     // Cleanup
-    free(gray_map);
-    munmap(pix_map, (width * height * 3));
+    //free(gray_map);
+    //munmap(pix_map, (width * height * 3));
     return EXIT_SUCCESS;
 
 

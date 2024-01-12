@@ -7,11 +7,15 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <immintrin.h>
+/*
+#define A .2126
+#define B .7152
+#define C .0722
+*/ 
 
-#define A .299
-#define B .587
-#define C .114
-
+#define A 0
+#define B 1
+#define C 0
 /**
  *
  * @param pix_map
