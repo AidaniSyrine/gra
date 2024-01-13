@@ -41,7 +41,7 @@ void quadratic_interpolation_LS (uint8_t* gray_map, size_t width, size_t height,
 void quadratic_interpolation_LS_LUT(uint8_t* gray_map, size_t width, size_t height,
                                     uint8_t es, uint8_t as, uint8_t em,
                                     uint8_t am, uint8_t ew, uint8_t aw, int outbound);
-//??
+
 void quadratic_interpolation_LS_SIMD(uint8_t* gray_map, size_t width, size_t height,
                                   uint8_t es, uint8_t as, uint8_t em,
                                   uint8_t am, uint8_t ew, uint8_t aw, int outbound);
