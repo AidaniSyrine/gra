@@ -18,7 +18,7 @@
 #define AS  0      /*Standard Black Output "Ausgabe Schwarz"*/
 #define EW  255    /*Standard White Input "Eingabe Schwarz"*/
 #define AW  255    /*Standard White Output "Ausgabe Schwarz"*/
-#define DEFAULT_OUTPUT_PATH "./images/output.pgm"
+#define DEFAULT_OUTPUT_PATH "../resources/default_output.pgm"
 
 /*  Facilitate Cleanup */
 #define return_defer(value) do { result = (value); goto defer; } while (0)

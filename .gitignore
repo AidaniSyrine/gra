@@ -62,9 +62,3 @@ dkms.conf
 thumbs.db
 *.swp
 .~
-
-# Ignore .uuid file
-.uuid
-
-# Ignore output Image
-/images/*.pgm

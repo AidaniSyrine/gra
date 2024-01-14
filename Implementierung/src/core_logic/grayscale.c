@@ -51,9 +51,4 @@ void img_to_gray_scale_SIMD(uint8_t* gray_map, const uint8_t* pix_map, size_t wi
     // Calculate the gray value iteratively
     for ( ;s < width * height; s++)
         gray_map[s]=(a * pix_map[3 * s] + b * pix_map[3 * s + 1]+ c * pix_map[3 * s + 2]) / (a + b + c);
-
-    return;
 }
-
-
-

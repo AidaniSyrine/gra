@@ -1,41 +1,49 @@
-.PHONY: all opt clean debug
-all: tonwertkorrektur
+#Resource: https://www.gnu.org/software/make/manual/make.html
+#Idea: Inspired by CMake-Build System
 
-# Compiler
-CC = gcc
-# List of soucrce files
-SOURCE = $(wildcard *.c)
+.PHONY: all clean perf
+all = tonwertkorrektur
+
+# Compiler 
+CC = gcc 
 
 # Flags
-WFLAGS = -Wall -Wextra -Wpedantic
-# Compile with moderate optimisation
-tonwertkorrektur: $(SOURCE)
-	$(CC) $^ -o $@.out -std=c11 -O0 -msse4.1 $(WFLAGS)
+WFLAGS = -Wall -Wextra -Wpedantic 
+CFLAGS = -std=c17 -msse4.2 
+    # For make perf - Used to check the Performance
+	ifeq ($(filter perf, $(MAKECMDGOALS)), perf)
+	CFLAGS += -O3
+	else
+	CFLAGS += -O0
+	endif
 
-# Compile for efficency Testing
-opt: $(SOURCE)
-	$(CC) $^ -o $@.out -std=c11 -O3 -msse4.1 $(WFLAGS)
+# Build Directory 
+OUTDIR = ./build
+OBJDIR = ./build/objects
 
-# Compile with address sanitizer enabled
-asan: $(SOURCE)
-	$(CC) $^ -o $@.out -std=c11 -O0 -msse4.1 $(WFLAGS) -Werror -fsanitize=address
+# Header and Source files
+SUBDIR = src src/core_logic src/io_utilities src/tests
+SOURCES = $(wildcard *.c $(foreach path, $(SUBDIR), $(path)/*.c))
+HEADERS = $(wildcard *.h $(foreach path, $(SUBDIR), $(path)/*.h))
 
-# Compile with UB sanitizer enabled
-ubsan: $(SOURCE)
-	$(CC) $^ -o $@.out -std=c11 -O0 -msse4.1 $(WFLAGS) -Werror -fsanitize=undefined
+# Objects and include/header directories
+OBJECTS = $(addprefix $(OBJDIR)/, $(SOURCES:c=out))
+INCDIRS = -I./ $(addprefix -I, $(SUBDIR))
 
-# Compile with leak sanitzer enabled
-lsan: $(SOURCE)
-	$(CC) $^ -o $@.out -std=c11 -O0 -msse4.1 $(WFLAGS) -Werror -fsanitize=leak
+# Compile source Files 
+$(OBJDIR)/%.out: %.c $(HEADERS)
+	mkdir -p -v $(@D)
+	$(CC) -o $@ $(WFLAGS) $(CFLAGS) -c $< $(INCDIRS)
 
-# Compile with GCC static Analysis enabled (Test Phase)
-staticana: $(SOURCE)
-	$(CC) $^ -o $@.out -std=c11 -O0 -msse4.1 $(WFLAGS) -Werror -fanalyzer
-
-# Set the debugging flag
-debug: $(SOURCE)
-	$(CC) $^ -o $@.out -std=c11 -O0 -msse4.1 $(WFLAGS) -g
-
-clean:
-	rm -f $(wildcard *.out) *.dSYM *.data *.old
+# Entry point	
+tonwertkorrektur perf: $(OBJECTS)
+	cd $(OUTDIR) 
+	$(CC) -o $(OUTDIR)/$@.out $(WFLAGS) $(CFLAGS) $(OBJECTS) 
+	
+# Cleanup 
+clean: 	
+	rm -rf $(OUTDIR) *.data *.old *.dSYM
 	find . -type f -name "*.pgm" -delete
+
+
+

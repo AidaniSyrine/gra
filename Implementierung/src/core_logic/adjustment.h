@@ -4,8 +4,8 @@
 #pragma once
 
 #include "grayscale.h"
-#include "interpolation.h"
-
+#include "linear_interpolation.h"
+#include "quadratic_interpolation.h"
 
 // "main implemetation entry point"
 

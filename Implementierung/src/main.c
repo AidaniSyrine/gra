@@ -5,9 +5,11 @@
 
 #include <getopt.h>
 #include <time.h>
-#include "io_operations.h"
-#include "adjustment.h"
 
+#include "io_utilities/io_operations.h"
+#include "io_utilities/arg_parser.h"
+#include "core_logic/adjustment.h"
+#include "tests/test_similarity.h"
 
 static int cflag = 0, sflag = 0, mflag = 0, wflag =0;
 static const struct option longopts[] = {
@@ -15,6 +17,7 @@ static const struct option longopts[] = {
         {"lvlss",   required_argument, &sflag,  's'},
         {"lvlsm",   required_argument, &mflag, 'm'},
         {"lvlsw",   required_argument, &wflag, 'w'},
+        {"test",    no_argument, 0, 't'},
         {"help",    no_argument, 0, 'h'},
         {0,0,0,0}
 };
@@ -39,10 +42,10 @@ int main(int argc, char* argv[]) {
     float a = 0, b = 0, c = 0;
     uint8_t es = 0, as = 0, em = 0, am = 0, ew = 0, aw = 0;
 
-
+    //TODO arg_parser
     // Read options
     float valid_args[3];
-    while((option = getopt_long(argc, argv, "-HO:V:B::ho:v:b::", longopts, &option_index)) != EOF) {
+    while((option = getopt_long(argc, argv, "-HTO:V:B::hto:v:b::", longopts, &option_index)) != EOF) {
             switch(option) {
                 case 0: // Handle longopts
                     switch (longopts[option_index].val) {
@@ -99,6 +102,10 @@ int main(int argc, char* argv[]) {
                     if (test_and_set_sarg(&iterations, optarg)) goto arg_error;
                     if (iterations <= 0) goto arg_error;
                     printf("num of iterations is = %d\n", iterations);
+                    break;
+                // TODO    
+                case 't': case 'T': 
+                    run_similarity_tests();
                     break;
                 case 'h': case 'H':
                     print_help();
@@ -182,8 +189,8 @@ int main(int argc, char* argv[]) {
     write_img(output_img_path, gray_map, width, height, 255, output_flag);
 
     // Cleanup
-    //free(gray_map);
-    //munmap(pix_map, (width * height * 3));
+    free(gray_map);
+    munmap(pix_map, (width * height * 3));
     return EXIT_SUCCESS;
 
 

@@ -7,15 +7,11 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <immintrin.h>
-/*
+
 #define A .2126
 #define B .7152
 #define C .0722
-*/ 
 
-#define A 0
-#define B 1
-#define C 0
 /**
  *
  * @param pix_map
@@ -29,5 +25,3 @@ void img_to_gray_scale(uint8_t* gray_map, const uint8_t* pix_map, size_t width, 
 void img_to_gray_scale_SIMD(uint8_t* gray_map, const uint8_t* pix_map, size_t width, size_t height,
                            float a, float b, float c);
 
-// TODO ??
-void img_to_gray_scale_LUT(void);

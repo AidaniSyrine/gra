@@ -1,0 +1,5 @@
+# Ignore .uuid file
+.uuid
+
+# Ignore output Image
+/images/*.pgm
