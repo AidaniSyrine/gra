@@ -2,6 +2,8 @@
 // Created by Adem Trabelsi on 26.12.23.
 //
 #pragma once
+//todo 
+#include <stdio.h>
 
 #include "grayscale.h"
 #include "linear_interpolation.h"

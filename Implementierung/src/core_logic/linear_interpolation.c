@@ -19,7 +19,7 @@ void linear_interpolation(uint8_t* gray_map, size_t width, size_t height,
            gray_map[i] = as +  ((am - as) / (em - es)) * (gray_map[i] - es);
        else
            gray_map[i] = am + ((aw - am) / (ew - em)) * (gray_map[i] - em);
-   }
+    }
 }
 
 void linear_interpolation_LUT(uint8_t* gray_map, size_t width, size_t height,

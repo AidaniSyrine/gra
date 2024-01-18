@@ -4,5 +4,5 @@
 
 
 void run_similarity_tests(void) { 
-    printf("Testing...");
+    printf("Testing...\n");
 }

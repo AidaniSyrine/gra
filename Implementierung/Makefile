@@ -33,13 +33,13 @@ INCDIRS = -I./ $(addprefix -I, $(SUBDIR))
 # Compile source Files 
 $(OBJDIR)/%.out: %.c $(HEADERS)
 	mkdir -p -v $(@D)
-	$(CC) -o $@ $(WFLAGS) $(CFLAGS) -c $< $(INCDIRS)
+	$(CC) -o $@ $(WFLAGS) $(CFLAGS) -c $< $(INCDIRS)	
 
 # Entry point	
 tonwertkorrektur perf: $(OBJECTS)
 	cd $(OUTDIR) 
-	$(CC) -o $(OUTDIR)/$@.out $(WFLAGS) $(CFLAGS) $(OBJECTS) 
-	
+	$(CC) -o $(OUTDIR)/$(all).out $(WFLAGS) $(CFLAGS) $(OBJECTS) 
+
 # Cleanup 
 clean: 	
 	rm -rf $(OUTDIR) *.data *.old *.dSYM

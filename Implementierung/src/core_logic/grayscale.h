@@ -8,9 +8,7 @@
 #include <stdlib.h>
 #include <immintrin.h>
 
-#define A .2126
-#define B .7152
-#define C .0722
+
 
 /**
  *
