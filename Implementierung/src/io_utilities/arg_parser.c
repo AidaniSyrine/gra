@@ -151,7 +151,7 @@ int arg_parser(Input_params* input_params, int argc, char* argv[]) {
                     if (test_and_set_sarg(&(input_params->version), optarg)) 
                         return  EXIT_FAILURE;
                     // TODO: set number of versions
-                    if (input_params->version < 0 || input_params->version > 6) {
+                    if (input_params->version < 0 || input_params->version > 7) {
                         fprintf(stderr, "Failed! Version number is undefined. Try --help");
                         return EXIT_FAILURE; 
                     }

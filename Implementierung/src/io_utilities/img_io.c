@@ -75,8 +75,8 @@ int read_img(Image_params* image_params, const char* input_path) {
     }
     return EXIT_SUCCESS;
 }
-//TODO Default_color_depth
-int write_img(const char* output_path, const uint8_t* gray_map, size_t width, size_t height) {
+
+int write_img(const char* output_path, const uint8_t* gray_map, Image_params* image_params) {
     // Open file
     FILE *f;
     f = fopen(output_path, "wb");
@@ -86,11 +86,11 @@ int write_img(const char* output_path, const uint8_t* gray_map, size_t width, si
     }
 
     // Write the corresponding header
-    fprintf(f, "P5\n%zu %zu\n%i\n", width, height, DEFAULT_COLOR_DEPTH);
+    fprintf(f, "P5\n%zu %zu\n%i\n", image_params->width, image_params->height, image_params->color_depth);
     if(ferror(f)) goto handle_error;
 
     // Load pix_map to the file
-    fwrite(gray_map, sizeof(uint8_t), height * width, f);
+    fwrite(gray_map, sizeof(uint8_t), image_params->width * image_params->height, f);
     if(ferror(f)) goto handle_error;
 
     //Cleanup 

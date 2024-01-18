@@ -14,7 +14,6 @@
 #include <sys/mman.h>
 #include <sys/fcntl.h>
 
-#define DEFAULT_COLOR_DEPTH 255
 
 
 typedef struct Image_params {
@@ -28,7 +27,7 @@ typedef struct Image_params {
 
 int read_img(Image_params* image_params, const char* input_path);
 
-int write_img(const char* output_path, const uint8_t* gray_map, size_t width, size_t height);
+int write_img(const char* output_path, const uint8_t* gray_map, Image_params* image_params);
 
 void dealloc_image_params(Image_params* image_params);
 

@@ -1,6 +1,15 @@
 
 #include "ui_msgs.h"
 
+//TODO
+void print_welcome(void) {
+    printf("WELCOME!!!\n");
+}
+
+//TODO
+void print_goodbye(void) {
+    printf("END!!!\n");
+}
 
 // TODO
 void print_help(void){
@@ -23,18 +32,4 @@ void print_help(void){
          "  --lvlsw<double>,<double>            ---\n"
          "  -h|--help                           ---\n"
          );
-}
-//TODO
-void print_welcome(void) {
-    printf("WELCOME!!!\n");
-}
-
-//TODO
-void print_runtime(int iter_num, double time) {
-    printf("%d-times formatting took %f seconds\n", iter_num, time);
-}
-
-//TODO
-void print_goodbye(void) {
-    printf("END!!!\n");
 }
