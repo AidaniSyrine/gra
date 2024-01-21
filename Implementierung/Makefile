@@ -9,7 +9,7 @@ CC = gcc
 
 # Flags
 WFLAGS = -Wall -Wextra -Wpedantic 
-CFLAGS = -std=c17 -msse4.2 
+CFLAGS = -std=c17 -msse4.2 -lcriterion
     # For make perf - Used to check the Performance
 	ifeq ($(filter perf, $(MAKECMDGOALS)), perf)
 	CFLAGS += -O3

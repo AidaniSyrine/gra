@@ -7,7 +7,6 @@
 #include "linear_interpolation.h"
 #include "quadratic_interpolation.h"
 
-// "main implemetation entry point"
 
 // Linear +SIMD
 void levels_adjustment(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
@@ -40,3 +39,4 @@ void levels_adjustment_V5(const uint8_t* img, size_t width, size_t height, float
 
 void levels_adjustment_V6(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
                           uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
+                          

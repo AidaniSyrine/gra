@@ -31,4 +31,4 @@ int write_img(const char* output_path, const uint8_t* gray_map, Image_params* im
 
 void dealloc_image_params(Image_params* image_params);
 
-
+int one (void); 

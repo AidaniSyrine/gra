@@ -7,7 +7,7 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <immintrin.h>
-
+#include <math.h>
 
 
 /**

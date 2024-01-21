@@ -10,6 +10,7 @@
 #include "io_utilities/ui_msgs.h"
 #include "core_logic/adjustment.h"
 #include "tests/test_similarity.h"
+#include "tests/test_io.h"
 
 /*  Facilitate Cleanup */
 #define return_dealloc(value) do { result = (value); goto dealloc; } while (0)
@@ -55,9 +56,8 @@ int main(int argc, char* argv[]) {
         levels_adjustment_V5,
         levels_adjustment_V6
     };                        
-
-    print_welcome();
     
+    print_welcome();
     // Parse arguments
     if(arg_parser(&input_params, argc, argv))
         return_dealloc(EXIT_FAILURE);
@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
     }
     
     // Write Image
-    printf("Writing image to output file %s ...\n", input_params->output_img_path); 
+    printf("Writing image to output file %s ...\n", input_params.output_img_path); 
     if(write_img(input_params.output_img_path, gray_map, &image_params))
         return_dealloc(EXIT_FAILURE);
  

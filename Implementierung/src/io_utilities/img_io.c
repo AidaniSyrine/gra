@@ -114,3 +114,7 @@ void dealloc_image_params(Image_params* image_params) {
         printf("-> Free: PPM image\n");
     }
 }
+
+int one(void) {
+    return 1; 
+}

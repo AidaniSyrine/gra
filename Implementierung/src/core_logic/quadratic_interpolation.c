@@ -4,7 +4,7 @@
 #include "quadratic_interpolation.h"
 
 
-//TODO Recover the coeffs s1 s2 s3 for all 
+
 void quadratic_interpolation_LS(uint8_t* gray_map, size_t width, size_t height,
                                 uint8_t es, uint8_t as, uint8_t em,
                                 uint8_t am, uint8_t ew, uint8_t aw) {
