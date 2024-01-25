@@ -9,8 +9,8 @@
 #include "io_utilities/arg_parser.h"
 #include "io_utilities/ui_msgs.h"
 #include "core_logic/adjustment.h"
-#include "tests/test_similarity.h"
-#include "tests/test_io.h"
+#include "tests/unittest.h"
+
 
 /*  Facilitate Cleanup */
 #define return_dealloc(value) do { result = (value); goto dealloc; } while (0)
@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
         return_dealloc(EXIT_SUCCESS); 
     }
     if (input_params.enable_tests) {
-        run_similarity_tests();
+        run_pers_tests();
         return_dealloc(EXIT_SUCCESS);
     }
     
