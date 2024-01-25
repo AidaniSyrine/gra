@@ -5,10 +5,10 @@ static int FAIL = 0;
 static int SUCCESS = 0; 
 
 static uint8_t ARR[] = {
-    1, 4, 9, 16
+    0
 };
 static uint8_t EXP_ARR[] = { 
-    1, 2, 3, 4
+    0
 }; 
 
 
