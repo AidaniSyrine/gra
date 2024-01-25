@@ -8,35 +8,123 @@
 #include "quadratic_interpolation.h"
 
 
-// Linear +SIMD
+/// @brief Main Implementation
+/// @param img 
+/// @param width 
+/// @param height 
+/// @param a 
+/// @param b 
+/// @param c 
+/// @param es 
+/// @param as 
+/// @param em 
+/// @param am 
+/// @param ew 
+/// @param aw 
+/// @param result 
 void levels_adjustment(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
                        uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
 
 
-// Linear -SIMD
+/// @brief Trivial Implementation
+/// @param img 
+/// @param width 
+/// @param height 
+/// @param a 
+/// @param b 
+/// @param c 
+/// @param es 
+/// @param as 
+/// @param em 
+/// @param am 
+/// @param ew 
+/// @param aw 
+/// @param result 
 void levels_adjustment_V1(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
                            uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
 
-// Bilinear
+
+/// @brief Optimized trivial implementation (+SIMD)
+/// @param img 
+/// @param width 
+/// @param height 
+/// @param a 
+/// @param b 
+/// @param c 
+/// @param es 
+/// @param as 
+/// @param em 
+/// @param am 
+/// @param ew 
+/// @param aw 
+/// @param result 
 void levels_adjustment_V2(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
                           uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
 
-// Quadratic LS -SIMD
+/// @brief Main Implementation (LUT: On Arm systems instead of SIMD)
+/// @param img 
+/// @param width 
+/// @param height 
+/// @param a 
+/// @param b 
+/// @param c 
+/// @param es 
+/// @param as 
+/// @param em 
+/// @param am 
+/// @param ew 
+/// @param aw 
+/// @param result 
 void levels_adjustment_V3(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
                           uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
 
-// Quadratic LS +SIMD
+/// @brief Linear interpolation SIMD
+/// @param img 
+/// @param width 
+/// @param height 
+/// @param a 
+/// @param b 
+/// @param c 
+/// @param es 
+/// @param as 
+/// @param em 
+/// @param am 
+/// @param ew 
+/// @param aw 
+/// @param result 
 void levels_adjustment_V4(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
                           uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
 
-// Quadratic Newton
+/// @brief Bilinear interpolation 
+/// @param img 
+/// @param width 
+/// @param height 
+/// @param a 
+/// @param b 
+/// @param c 
+/// @param es 
+/// @param as 
+/// @param em 
+/// @param am 
+/// @param ew 
+/// @param aw 
+/// @param result 
 void levels_adjustment_V5(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
                           uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
-
-// Quadratic Barycentric Lagrange
-void levels_adjustment_V5(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
-                          uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
-
+/// @brief BLagrange interpolation
+/// @param img 
+/// @param width 
+/// @param height 
+/// @param a 
+/// @param b 
+/// @param c 
+/// @param es 
+/// @param as 
+/// @param em 
+/// @param am 
+/// @param ew 
+/// @param aw 
+/// @param result 
 void levels_adjustment_V6(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
                           uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
                           

@@ -9,7 +9,7 @@ read -r -p "->  " args
 echo -e "===========================================
 Command:"
 set -x
-./tonwertkorrektur.out ../resources/mandrill.ppm $args
+./tonwertkorrektur.out $args
 #set +x
 #cd .. 
 #make clean 

@@ -9,7 +9,8 @@ CC = gcc
 
 # Flags
 WFLAGS = -Wall -Wextra -Wpedantic 
-CFLAGS = -std=c17 -msse4.2 -lcriterion
+CFLAGS = -std=c17 -msse4.2 
+LIBS = -lm
     # For make perf - Used to check the Performance
 	ifeq ($(filter perf, $(MAKECMDGOALS)), perf)
 	CFLAGS += -O3
@@ -33,12 +34,12 @@ INCDIRS = -I./ $(addprefix -I, $(SUBDIR))
 # Compile source Files 
 $(OBJDIR)/%.out: %.c $(HEADERS)
 	mkdir -p -v $(@D)
-	$(CC) -o $@ $(WFLAGS) $(CFLAGS) -c $< $(INCDIRS)	
+	$(CC) -o $@ $(WFLAGS) $(CFLAGS) -c $< $(INCDIRS) 
 
 # Entry point	
 tonwertkorrektur perf: $(OBJECTS)
 	cd $(OUTDIR) 
-	$(CC) -o $(OUTDIR)/$(all).out $(WFLAGS) $(CFLAGS) $(OBJECTS) 
+	$(CC) -o $(OUTDIR)/$(all).out $(WFLAGS) $(CFLAGS) $(OBJECTS) $(LIBS)
 
 # Cleanup 
 clean: 	

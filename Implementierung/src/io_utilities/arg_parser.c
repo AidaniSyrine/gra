@@ -174,8 +174,8 @@ int arg_parser(Input_params* input_params, int argc, char* argv[]) {
                     }
                     break;
                 case 't': case 'T': 
-                    input_params->enable_tests = true;   
-                    return EXIT_SUCCESS;
+                    input_params->enable_tests = true;
+                    return EXIT_SUCCESS; 
                 case 'h': case 'H':
                     input_params->enable_help = true; 
                     return EXIT_SUCCESS;
@@ -193,7 +193,7 @@ int arg_parser(Input_params* input_params, int argc, char* argv[]) {
                     return EXIT_FAILURE; 
             }
     }
-    
+
     // No input file
     if (!input_flag) { 
         fprintf(stderr, "Failed! Positional argument is NOT provided. Try --help.\n");
