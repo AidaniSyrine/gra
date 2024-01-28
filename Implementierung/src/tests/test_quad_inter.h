@@ -2,20 +2,19 @@
 
 #include <inttypes.h>
 #include <stdio.h> 
+#include <stdlib.h> 
+#include <stdio.h>
+#include <time.h>
+#include <assert.h>
+
+#include "unit.h"
 #include "../core_logic/quadratic_interpolation.h"
+#include "../core_logic/linear_interpolation.h"
+#include "../core_logic/grayscale.h"
+#include "../io_utilities/arg_parser.h"
 
-#define ES  0      
-#define AS  0    
-#define EW  255    
-#define AW  255 
-#define A .2126
-#define B .7152
-#define C .0722
-#define ARR_SIZE  4
+#define ARR_SIZE 12288 // 3 Unix pages //! Must be divisible by 3
 
 
-void TEST_ALL_GAUSSIAN(void); 
-void TEST_ALL_NEWTON(void);
-void TEST_ALL_BLAGRANGE(void); 
 
-void TEST_ALL_INTERPOLATION(void); 
+void TEST_QUAD_INTERPOLATION(void); 

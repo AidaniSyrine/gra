@@ -10,56 +10,40 @@
 #include <emmintrin.h>
 #include <tmmintrin.h>
 
-
+#define ROUNDING 0.000001
 
 //TODO Write functions descriptions 
 
+void row_reduced_echelon_form(int num_rows, int num_cols, float matrix[num_rows][num_cols]); 
 
-/// @brief Assume that the LS is solvable for all 
-/// entries
-/// @param x 
-/// @param es 
-/// @param as 
-/// @param em 
-/// @param am 
-/// @param ew 
-/// @param aw 
-void gaussian_elimination(float* x,  float es, float as,
-                        float em, float am, float ew, float aw );
-
-void quadratic_interpolation_Gaussian(uint8_t* gray_map, size_t width, size_t height,
+void quadratic_interpolation_gaussian(uint8_t* gray_map, size_t width, size_t height,
+                                float es, float as, float em,
+                                float am, float ew, float aw);
+//TODO
+void quadratic_interpolation_gaussian_SIMD(uint8_t* gray_map, size_t width, size_t height,
                                 float es, float as, float em,
                                 float am, float ew, float aw, int out_of_bound);
 
-void quadratic_interpolation_Gaussian_LUT(uint8_t* gray_map, size_t width, size_t height,
-                                float es, float as, float em,
-                                float am, float ew, float aw, int out_of_bound);
+void quadratic_interpolation_lagrange(uint8_t* gray_map, size_t width, size_t height,
+                                       float es, float as, float em,
+                                       float am, float ew, float aw);
 
-void quadratic_interpolation_Gaussian_SIMD(uint8_t* gray_map, size_t width, size_t height,
-                                float es, float as, float em,
-                                float am, float ew, float aw, int out_of_bound);
+void quadratic_interpolation_blagrange(uint8_t* gray_map, size_t width, size_t height,
+                                       float es, float as, float em,
+                                       float am, float ew, float aw);
 
-void quadratic_interpolation_BLagrange(uint8_t* gray_map, size_t width, size_t height,
-                                      uint8_t es, uint8_t as, uint8_t em,
-                                      uint8_t am, uint8_t ew, uint8_t aw);
-
-void quadratic_interpolation_BLagrange_LUT(uint8_t* gray_map, size_t width, size_t height,
-                                      uint8_t es, uint8_t as, uint8_t em,
-                                      uint8_t am, uint8_t ew, uint8_t aw);
-
-void quadratic_interpolation_Newton(uint8_t* gray_map, size_t width, size_t height,
+void quadratic_interpolation_newton(uint8_t* gray_map, size_t width, size_t height,
                                     float es, float as, float em,
-                                    float am, float ew, float aw, int out_of_bound);
+                                    float am, float ew, float aw);
 
-void quadratic_interpolation_Newton_LUT(uint8_t* gray_map, size_t width, size_t height,
+void quadratic_interpolation_newton_LUT(uint8_t* gray_map, size_t width, size_t height,
                                     float es, float as, float em,
-                                    float am, float ew, float aw, int out_of_bound);
-
-void quadratic_interpolation_Newton_SIMD(uint8_t* gray_map, size_t width, size_t height,
+                                    float am, float ew, float aw);
+//TODO
+void quadratic_interpolation_newton_SIMD(uint8_t* gray_map, size_t width, size_t height,
                                         float es, float as, float em,
-                                        float am, float ew, float aw,int out_of_bound);
+                                        float am, float ew, float aw , int out_of_bound);
 
-int is_out_of_bound (float es, float as, float em, float am, float ew, float aw);
 
 
 

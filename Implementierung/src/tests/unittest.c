@@ -7,7 +7,7 @@
 Image_params image_params = {
         .image_ptr = NULL
 };
-
+/*
 
 void run_all_tests(void) { 
     printf("Testing...\n");
@@ -48,8 +48,8 @@ void run_all_tests(void) {
     printf("__________________________\n");
     printf("All tests passed succesfully.\n");
 }
-
+*/ 
 void run_pers_tests(void) { 
-    TEST_ALL_INTERPOLATION();
+    TEST_QUAD_INTERPOLATION();
 
 }

@@ -3,7 +3,7 @@
 
 
 
-
+/*
 int testImageSimilarity(uint8_t* image1, uint8_t* image2,size_t size){
     for(size_t i=0;i<size;i++){
         if (abs(image1[i]-image2[i])>1){
@@ -115,3 +115,4 @@ void test_quadratic(Image_params* pix_map) {
     free(gray_map3);
 }
 
+*/ 
