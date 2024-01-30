@@ -9,6 +9,8 @@
 #include "io_utilities/arg_parser.h"
 #include "io_utilities/ui_msgs.h"
 #include "core_logic/adjustment.h"
+#include "tests/test_algorithmic.h"
+#include "tests/test_io.h"
 #include "tests/unittest.h"
 
 
@@ -57,6 +59,7 @@ int main(int argc, char* argv[]) {
         levels_adjustment_V6
     };                        
     
+    
     print_welcome();
     // Parse arguments
     if(arg_parser(&input_params, argc, argv))
@@ -67,12 +70,16 @@ int main(int argc, char* argv[]) {
         return_dealloc(EXIT_SUCCESS); 
     }
     if (input_params.enable_tests) {
-        run_pers_tests();
+        start_testing("io operations");
+        TEST_ALL_IO_OPERATIONS();
+        start_testing("program logic");
+        TEST_ALL_ALGORITHMS();
+        end_testing();
         return_dealloc(EXIT_SUCCESS);
     }
-    
+
     // Read image
-    printf("Loading image from: %s ...\n", input_params.input_img_path);
+    printf("Loading image from: %s.\n", input_params.input_img_path);
     if(read_img(&image_params, (const char *)input_params.input_img_path))
         return_dealloc(EXIT_FAILURE);
 
@@ -84,14 +91,14 @@ int main(int argc, char* argv[]) {
     }
 
     printf("Formatting the given image to grayscale image with correction using "
-            "version %d ...\n", input_params.version);
+            "version %d.\n", input_params.version);
     // Performance Testing  + Conversion                         
     if (input_params.iter_num) {
         double start_time = curtime();
         if (start_time == -1) 
             return_dealloc(EXIT_FAILURE);
 
-        printf("Starting performance test ...\n");
+        printf("Starting performance tests.\n");
         for (int i = 0; i < input_params.iter_num; i++)
             adjustments[input_params.version](image_params.pix_map, image_params.width,
                                     image_params.height,input_params.a,input_params.b,
@@ -112,7 +119,7 @@ int main(int argc, char* argv[]) {
     }
     
     // Write Image
-    printf("Writing image to output file %s ...\n", input_params.output_img_path); 
+    printf("Writing image to output file %s.\n", input_params.output_img_path); 
     if(write_img(input_params.output_img_path, gray_map, &image_params))
         return_dealloc(EXIT_FAILURE);
  
@@ -120,12 +127,12 @@ int main(int argc, char* argv[]) {
     return_dealloc(EXIT_SUCCESS); 
     
     dealloc:
+        print_goodbye(!result + input_params.enable_help + input_params.enable_tests);
         dealloc_input_params(&input_params); 
         dealloc_image_params(&image_params);
         if (gray_map != NULL) {
             printf("-> Free: gray_map\n");
             free(gray_map); 
         }
-        print_goodbye();
         return result; 
 }

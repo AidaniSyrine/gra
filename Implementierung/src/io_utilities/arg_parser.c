@@ -133,21 +133,21 @@ int arg_parser(Input_params* input_params, int argc, char* argv[]) {
                             break;
                     } break;
                 case 1: // Non-option arg input file
-                    if (input_flag) goto dup_arg;
+                    if (input_flag) goto arg_error;
                     if (test_and_set_input(input_params, optarg))
                         return EXIT_FAILURE;
                     input_flag++;
                     printf("Given input path: %s\n", input_params->input_img_path);
                     break;
                 case 'o': case 'O':
-                    if (output_flag) goto dup_arg;
+                    if (output_flag) goto arg_error;
                     if (test_and_set_output(input_params, optarg))
                         return EXIT_FAILURE; 
                     output_flag++;
                     printf("Given output path: %s\n", input_params->output_img_path);
                     break;
                 case 'V': case 'v':
-                    if (vflag) goto dup_arg;
+                    if (vflag) goto arg_error;
                     if (test_and_set_sarg(&(input_params->version), optarg)) 
                         return  EXIT_FAILURE;
                     // TODO: set number of versions
@@ -158,7 +158,7 @@ int arg_parser(Input_params* input_params, int argc, char* argv[]) {
                     vflag++;
                     break;
                 case 'B': case 'b':
-                    if (bflag) goto dup_arg;
+                    if (bflag) goto arg_error;
                     bflag++;
                     if (!optarg) {
                         input_params->iter_num = DEFAULT_ITER_NUM; 
@@ -224,11 +224,12 @@ int arg_parser(Input_params* input_params, int argc, char* argv[]) {
     
     return EXIT_SUCCESS;
 
-    dup_arg: 
-        fprintf(stderr, "Failed! Duplicated argument. Try --help.\n"); 
+    arg_error: 
+        fprintf(stderr, "Failed! One or more arguments provided do not match their definitions . Try --help.\n"); 
         return EXIT_FAILURE;
 }
 
+//TODO remove print statements 
 void dealloc_input_params(Input_params* input_params) {
     if(input_params->input_img_path != NULL) {
         printf("-> Free: %s\n", input_params->input_img_path);

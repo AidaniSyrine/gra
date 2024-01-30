@@ -19,10 +19,10 @@ void row_reduced_echelon_form(int num_rows, int num_cols, float matrix[num_rows]
 void quadratic_interpolation_gaussian(uint8_t* gray_map, size_t width, size_t height,
                                 float es, float as, float em,
                                 float am, float ew, float aw);
-//TODO
+
 void quadratic_interpolation_gaussian_SIMD(uint8_t* gray_map, size_t width, size_t height,
                                 float es, float as, float em,
-                                float am, float ew, float aw, int out_of_bound);
+                                float am, float ew, float aw);
 
 void quadratic_interpolation_lagrange(uint8_t* gray_map, size_t width, size_t height,
                                        float es, float as, float em,
@@ -39,10 +39,10 @@ void quadratic_interpolation_newton(uint8_t* gray_map, size_t width, size_t heig
 void quadratic_interpolation_newton_LUT(uint8_t* gray_map, size_t width, size_t height,
                                     float es, float as, float em,
                                     float am, float ew, float aw);
-//TODO
+
 void quadratic_interpolation_newton_SIMD(uint8_t* gray_map, size_t width, size_t height,
                                         float es, float as, float em,
-                                        float am, float ew, float aw , int out_of_bound);
+                                        float am, float ew, float aw);
 
 
 

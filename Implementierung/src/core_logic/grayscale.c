@@ -3,12 +3,12 @@
 //
 
 #include "grayscale.h"
-
+ #include <stdio.h>
 
 void img_to_gray_scale(uint8_t* gray_map, const uint8_t* pix_map, size_t width, size_t height,
                        float a, float b, float c) {
     for (size_t i = 0; i < width * height; i++)
-        gray_map[i] =  (a * pix_map[3 * i] + b * pix_map[3 * i +1]
+        gray_map[i] = (a * pix_map[3 * i] + b * pix_map[3 * i +1]
                 + c * pix_map[3 * i + 2]) / (a + b + c);
 }
 
@@ -38,13 +38,14 @@ void img_to_gray_scale_SIMD(uint8_t* gray_map, const uint8_t* pix_map, size_t wi
         c_col = _mm_mul_ps(c_col, c_coeff);
 
         // Divide the sum by (a+b+c)
-        __m128 result  = _mm_div_ps(_mm_add_ps(a_col, _mm_add_ps(b_col, c_col)), div);
-
+        __m128 result  = _mm_div_ps(_mm_add_ps(a_col, _mm_add_ps(b_col, c_col)), div);       
+        
         // Store the 4 calculated values in gray_map
-        __m128i final_result = _mm_cvtps_epi32(result);
-
+        __m128i final_result = _mm_cvttps_epi32(result);
+        
         final_result = _mm_packus_epi16(_mm_packus_epi32(final_result, _mm_setzero_si128()), _mm_setzero_si128());
-        _mm_storeu_si32(gray_map + s,final_result);
+        
+        _mm_storeu_si32(gray_map + s, final_result);
     }
 
     // Calculate the gray value iteratively

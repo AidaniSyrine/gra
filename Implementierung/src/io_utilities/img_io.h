@@ -14,7 +14,7 @@
 #include <sys/mman.h>
 #include <sys/fcntl.h>
 
-
+//TODO WRITE Functions description 
 typedef struct Image_params {
     uint8_t color_depth; 
     size_t width; 
@@ -29,5 +29,3 @@ int read_img(Image_params* image_params, const char* input_path);
 int write_img(const char* output_path, const uint8_t* gray_map, Image_params* image_params);
 
 void dealloc_image_params(Image_params* image_params);
-
-int one (void); 

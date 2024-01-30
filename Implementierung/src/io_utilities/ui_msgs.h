@@ -8,4 +8,4 @@
 
 void print_help(void);
 void print_welcome(void);
-void print_goodbye();
+void print_goodbye(int state);

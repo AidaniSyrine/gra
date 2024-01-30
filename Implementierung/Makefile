@@ -21,6 +21,7 @@ LIBS = -lm
 # Build Directory 
 OUTDIR = ./build
 OBJDIR = ./build/objects
+RESDIR = ./resources/result
 
 # Header and Source files
 SUBDIR = src src/core_logic src/io_utilities src/tests
@@ -38,12 +39,13 @@ $(OBJDIR)/%.out: %.c $(HEADERS)
 
 # Entry point	
 tonwertkorrektur perf: $(OBJECTS)
+	mkdir -p -v $(RESDIR)
 	cd $(OUTDIR) 
 	$(CC) -o $(OUTDIR)/$(all).out $(WFLAGS) $(CFLAGS) $(OBJECTS) $(LIBS)
 
 # Cleanup 
 clean: 	
-	rm -rf $(OUTDIR) *.data *.old *.dSYM
+	rm -rf $(OUTDIR) $(RESDIR) *.data *.old *.dSYM
 	find . -type f -name "*.pgm" -delete
 
 

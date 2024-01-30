@@ -1,55 +1,69 @@
-
 #include "unittest.h"
 
-#include "unittest.h"
+static int FAIL = 0; 
+static int SUCCESS = 0; 
 
 
-Image_params image_params = {
-        .image_ptr = NULL
-};
-/*
-
-void run_all_tests(void) { 
-    printf("Testing...\n");
-    printf("__________________________\n");
-    printf("Starting I/O tests:\n");
-    printf("\n");
-    test_read_nonp6();
-    printf("test read non P6 format passed.\n");
-    test_read_dimensions();
-    printf("test read dimensions passed.\n");
-    //test_ignore_comments();
-    //printf("test ignore comments passed.\n");
-    test_read_path();
-    printf("test read path passed.\n");
-    test_write_format();
-    printf("test write format passed.\n");
-    printf("__________________________\n");
-    printf("Starting similarity tests:\n");
-    printf("\n");
-    //reading the image for tests
-    read_img(&image_params,"../resources/mandrill.ppm" );
-    //testing grasycale SIMD
-    test_grayscale_SIMD(&image_params);
-    printf("test graysclae SIMD passed.\n");
-    //testing linear simd
-    test_linear_SIMD(&image_params);
-    printf("test linear SIMD passed.\n");
-    //testing quadratic simd
-    read_img(&image_params,"../resources/mandrill.ppm" );
-    test_quadraticLS_SIMD(&image_params);
-    printf("test quadratic interpolation SIMD passed.\n");
-    //testing quadratic newton SIMD
-    test_newton_SIMD(&image_params) ;
-    printf("test newton simd passed.\n");
-    //testing quadratic variations
-    test_quadratic(&image_params) ;
-    printf("test quadratic variations passed.\n");
-    printf("__________________________\n");
-    printf("All tests passed succesfully.\n");
+void __ASSERT__SIMILAR__ARRAY(uint8_t* expected, uint8_t* actual, size_t len, char* message) {
+    double similarity = 0; 
+    for(size_t i = 0; i < len; i++) {
+        if(expected[i]== actual[i]) {
+           similarity++;
+        }
+    }
+    similarity =  (similarity / len) * 100; 
+    if(similarity > 76) {
+        printf("[PASS] %s. -SIMILARITY = %d%%\n", message, (int)similarity);
+        SUCCESS++;
+    }
+    else {
+        printf("[FAIL] %s. -SIMILARITY = %d%%\n", message, (int)similarity);
+        FAIL++;
+    }
 }
-*/ 
-void run_pers_tests(void) { 
-    TEST_QUAD_INTERPOLATION();
 
+void __ASSERT__EQUAL__ARRAY(uint8_t*  expected, uint8_t* actual, size_t len, char* message) { 
+    for(size_t i = 0; i < len; i++) {
+        if(expected[i]!= actual[i]) {
+            FAIL++;
+            printf("[FAIL] %s\n", message);
+            return; 
+        }
+    }
+    SUCCESS++;
+    printf("[PASS] %s\n", message);
+}
+
+void __ASSERT__EQUAL(int expected, int actual, char* message) {
+    if (expected != actual) {
+        FAIL++;
+        printf("[FAIL] %s\n", message);
+        return; 
+    }
+
+    SUCCESS++;
+    printf("[PASS] %s\n", message);
+}
+
+void __ASSERT__EQUAL__IMGPARAMS(Image_params* expected, Image_params* actual, char* message) {
+    if (expected->height != actual->height || expected->width != actual->width 
+        || expected->color_depth != actual->color_depth || expected->image_size != actual->image_size) {
+            FAIL++;
+            printf("[FAIL] %s\n", message);
+            return;
+        } 
+    __ASSERT__EQUAL__ARRAY(expected->pix_map, actual->pix_map, expected->width * expected->height, message);
+}
+
+
+void start_testing(char* message) { 
+    freopen("/dev/null", "w", stderr); 
+    printf("===========================================================================================\n"); 
+    printf("-> Testing %s started: \n", message);
+}
+
+void end_testing() {
+    printf("===========================================================================================\n"); 
+    printf("[===>] Synthesis: Tested: %d | Passing: %d | Failing: %d\n", FAIL + SUCCESS, SUCCESS, FAIL);
+    printf("===========================================================================================\n"); 
 }

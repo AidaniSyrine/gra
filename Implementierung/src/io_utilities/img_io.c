@@ -9,7 +9,8 @@ int read_img(Image_params* image_params, const char* input_path) {
     // Open file
     int fd;
     if ((fd = open(input_path, O_RDONLY)) < 0) {
-        fprintf(stderr, "Failed! Cannot open input file %s.\n", input_path);
+       
+        fprintf(stderr, "Failed! Cannot open input file %s.\n%s.\n", input_path, strerror(errno));
         return EXIT_FAILURE;
     }
 
@@ -36,27 +37,31 @@ int read_img(Image_params* image_params, const char* input_path) {
     image_params->image_size = statbuf.st_size;
 
     // Check image's version 
+    
     char * ascii_data = (char *) img_ptr;
     if (ascii_data[0] != 'P' || ascii_data[1] != '6') {
         fprintf(stderr, "Failed! Provided file: %s is not a PPM (P6) image.\n", input_path);
         return EXIT_FAILURE;
     }
-    ascii_data += 2;
-   
-    // If exists, ignore comments
-    while (ascii_data[0] == '#')
-         ascii_data = strchr(ascii_data, '\n');
-    ascii_data++;
+    ascii_data += 3;
 
-     // Read width, height, and color depth
+    // If exists, ignore comments
+    
+    while (ascii_data[0] == '#') {
+        ascii_data = strchr(ascii_data, '\n');
+        ascii_data++;
+    }
+
+    // Read width, height, and color depth
     int depth_tmp;
     if(sscanf(ascii_data, "%zu %zu\n%d", &image_params->width, &image_params->height, &depth_tmp) != 3) { 
-        fprintf(stderr, "Failed! Provided file: %s is not a regular PPM image.\n", input_path);
+        fprintf(stderr, "Failed! Provided file: %s is not a regular PPM image. Non valid metadata.\n", input_path);
         return EXIT_FAILURE; 
     } 
+
     if (depth_tmp < 0 || depth_tmp > 255) {
-        fprintf(stderr, "Failed! Provided file: %s is not a regular PPM image.\n", input_path);
-         return EXIT_FAILURE;
+        fprintf(stderr, "Failed! Provided file: %s is not a regular PPM image. Non valid depth.\n", input_path);
+        return EXIT_FAILURE;
     }
     image_params->color_depth = (uint8_t) depth_tmp;
 
@@ -64,7 +69,14 @@ int read_img(Image_params* image_params, const char* input_path) {
     ascii_data = strchr(ascii_data, '\n');
     ascii_data++;
     ascii_data = strchr(ascii_data, '\n');
-    ++ascii_data;
+    ascii_data++;
+    
+    // Check Pix_map 
+    size_t metadata_len = strlen(img_ptr) - strlen(ascii_data); 
+    if ((size_t)statbuf.st_size !=  image_params->width * image_params->height * 3 + metadata_len) {
+        fprintf(stderr, "Failed! Provided file %s is not a regular PPM image. Number of pixels is ambiguous.\n", input_path);
+        return EXIT_FAILURE; 
+    }
 
     // Cast the pointer to read raw data to bytes
     image_params->pix_map = (uint8_t*) ascii_data;
@@ -90,8 +102,8 @@ int write_img(const char* output_path, const uint8_t* gray_map, Image_params* im
     if(ferror(f)) goto handle_error;
 
     // Load pix_map to the file
-    fwrite(gray_map, sizeof(uint8_t), image_params->width * image_params->height, f);
-    if(ferror(f)) goto handle_error;
+    size_t written = fwrite(gray_map, sizeof(uint8_t), image_params->width * image_params->height, f);
+    if(ferror(f) || written < (image_params->width * image_params->height)) goto handle_error;
 
     //Cleanup 
     fclose(f); 
@@ -113,8 +125,4 @@ void dealloc_image_params(Image_params* image_params) {
         }
         printf("-> Free: PPM image\n");
     }
-}
-
-int one(void) {
-    return 1; 
 }
