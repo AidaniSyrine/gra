@@ -39,7 +39,8 @@ $(OBJDIR)/%.out: %.c $(HEADERS)
 
 # Entry point	
 tonwertkorrektur perf: $(OBJECTS)
-	mkdir -p -v $(RESDIR)
+	mkdir -p -v $(RESDIR) 
+	chmod 000 ./resources/testing/top_secret.ppm
 	cd $(OUTDIR) 
 	$(CC) -o $(OUTDIR)/$(all).out $(WFLAGS) $(CFLAGS) $(OBJECTS) $(LIBS)
 
@@ -47,6 +48,6 @@ tonwertkorrektur perf: $(OBJECTS)
 clean: 	
 	rm -rf $(OUTDIR) $(RESDIR) *.data *.old *.dSYM
 	find . -type f -name "*.pgm" -delete
-
+	chmod 700 ./resources/testing/top_secret.ppm
 
 

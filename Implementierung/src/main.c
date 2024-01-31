@@ -13,7 +13,7 @@
 #include "tests/test_io.h"
 #include "tests/unittest.h"
 
-
+//TODO chmod and git :/ 
 /*  Facilitate Cleanup */
 #define return_dealloc(value) do { result = (value); goto dealloc; } while (0)
 
@@ -92,13 +92,17 @@ int main(int argc, char* argv[]) {
 
     printf("Formatting the given image to grayscale image with correction using "
             "version %d.\n", input_params.version);
+
+    //TODO remove after performance test 
+    img_to_gray_scale_SIMD(gray_map, image_params.pix_map, image_params.width, image_params.height, A, B, C);
+    
     // Performance Testing  + Conversion                         
     if (input_params.iter_num) {
         double start_time = curtime();
         if (start_time == -1) 
             return_dealloc(EXIT_FAILURE);
 
-        printf("Starting performance tests.\n");
+        printf("Performance testing started:\n");
         for (int i = 0; i < input_params.iter_num; i++)
             adjustments[input_params.version](image_params.pix_map, image_params.width,
                                     image_params.height,input_params.a,input_params.b,
@@ -109,7 +113,8 @@ int main(int argc, char* argv[]) {
         if (stop_time == -1) 
             return_dealloc(EXIT_FAILURE);
         double time = stop_time - start_time;
-        printf("Calculation of %d iteration took %.9f seconds\n", input_params.iter_num, time);
+        printf("Calculation of %d iteration took %.9f seconds.\n", input_params.iter_num, time);
+        printf("-> Average calculation took %.9f milliseconds.\n", (time * 1E4) / input_params.iter_num);
     } else {
         adjustments[input_params.version](image_params.pix_map, image_params.width,
                                     image_params.height,input_params.a,input_params.b,
