@@ -7,7 +7,7 @@
 #include "linear_interpolation.h"
 #include "quadratic_interpolation.h"
 
-
+//TODO Update comments
 /// @brief Main version implementation using SIMD version of grayscale
 /// conversion and of Newton quadratic interpolation for the tonal-correction
 /// Optimisation level 3
@@ -67,33 +67,4 @@ void levels_adjustment_V1(const uint8_t* img, size_t width, size_t height, float
 void levels_adjustment_V2(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
                           uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
 
-/// @brief Comparaison implementation (3) using Blagrange interpolation  
-/// for the tonal-correction 
-/// Optimization level 1 
-/// @param img Pointer to the input RGB image.
-/// @param width Width of the image.
-/// @param height Height of the image.
-/// @param a Weight for the red channel used in the grayscale conversion.
-/// @param b Weight for the green channel used in the grayscale conversion.
-/// @param c Weight for the blue channel used in the grayscale conversion.
-/// @param es Input value for the support point representing the black-pixel 
-/// @param as Output value for the support point representing the black-pixel 
-/// @param em Input value for the support point representing the middle-pixel 
-/// @param am Output value for the support point representing the middle-pixel 
-/// @param ew Input value for the support point representing the white-pixel 
-/// @param aw Output value for the support point representing the white-pixel 
-/// @param result Pointer to the output final image.
-void levels_adjustment_V3(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
-                          uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
 
-// TODO REMOVE
-void levels_adjustment_V4(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
-                          uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
-
-
-void levels_adjustment_V5(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
-                          uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
-
-void levels_adjustment_V6(const uint8_t* img, size_t width, size_t height, float a, float b, float c,
-                          uint8_t es, uint8_t as, uint8_t em, uint8_t am, uint8_t ew, uint8_t aw, uint8_t* result);
-                          

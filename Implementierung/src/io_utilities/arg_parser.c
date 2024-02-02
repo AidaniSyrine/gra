@@ -10,7 +10,7 @@ int test_and_set_sarg(int* valid_arg, const char* option_arg) {
 
     *valid_arg = (int) strtol(option_arg, &endptr, 10);
     if (endptr == option_arg || *endptr != '\0' || errno == ERANGE) {
-        fprintf(stderr, "Failed! Invalid short argument option.");
+        fprintf(stderr, "Failed! Invalid short argument option.\n");
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
@@ -151,8 +151,8 @@ int arg_parser(Input_params* input_params, int argc, char* argv[]) {
                     if (test_and_set_sarg(&(input_params->version), optarg)) 
                         return  EXIT_FAILURE;
                     // TODO: set number of versions
-                    if (input_params->version < 0 || input_params->version > 7) {
-                        fprintf(stderr, "Failed! Version number is undefined. Try --help");
+                    if (input_params->version < 0 || input_params->version > 3) {
+                        fprintf(stderr, "Failed! Version number is undefined. Try --help\n");
                         return EXIT_FAILURE; 
                     }
                     vflag++;

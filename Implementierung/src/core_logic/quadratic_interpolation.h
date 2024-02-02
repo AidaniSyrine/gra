@@ -20,6 +20,10 @@ void quadratic_interpolation_gaussian(uint8_t* gray_map, size_t width, size_t he
                                 float es, float as, float em,
                                 float am, float ew, float aw);
 
+void quadratic_interpolation_gaussian_LUT(uint8_t* gray_map, size_t width, size_t height,
+                                    float es, float as, float em,
+                                    float am, float ew, float aw);
+
 void quadratic_interpolation_gaussian_SIMD(uint8_t* gray_map, size_t width, size_t height,
                                 float es, float as, float em,
                                 float am, float ew, float aw);
@@ -36,9 +40,7 @@ void quadratic_interpolation_newton(uint8_t* gray_map, size_t width, size_t heig
                                     float es, float as, float em,
                                     float am, float ew, float aw);
 
-void quadratic_interpolation_newton_LUT(uint8_t* gray_map, size_t width, size_t height,
-                                    float es, float as, float em,
-                                    float am, float ew, float aw);
+
 
 void quadratic_interpolation_newton_SIMD(uint8_t* gray_map, size_t width, size_t height,
                                         float es, float as, float em,

@@ -43,7 +43,23 @@ void TEST_PRECISION_GRAYSCALE_SIMD_DEFAULT(void) {
     uint8_t actual[ARR_SIZE / 3] = {0}; 
     img_to_gray_scale_SIMD(actual, ARR, ARR_SIZE / 3, 1, A, B, C); 
 
-    __ASSERT__SIMILAR__ARRAY(expected, actual, 84, "TEST_PRECISION_GRAYSCALE_SIMD_DEFAULT");
+    __ASSERT__SIMILAR__ARRAY(expected, actual, ARR_SIZE / 3, "TEST_PRECISION_GRAYSCALE_SIMD_DEFAULT");
+}
+ 
+
+void TEST_PRECISION_GRAYSCALE_SIMD_CUSTOMIZED(void) {
+    srand(time(NULL));
+    for (int i = 0; i < ARR_SIZE; i++) { 
+        ARR[i] = rand() % DEFAULT_COLOR_DEPTH; 
+    }
+
+    uint8_t expected[ARR_SIZE / 3] = {0};
+    img_to_gray_scale(expected, ARR, ARR_SIZE / 3, 1, 1.8, 2.8, 3.8); 
+
+    uint8_t actual[ARR_SIZE / 3] = {0}; 
+    img_to_gray_scale_SIMD(actual, ARR, ARR_SIZE / 3, 1, 1.8, 2.8, 3.8); 
+
+    __ASSERT__SIMILAR__ARRAY(expected, actual, ARR_SIZE / 3, "TEST_PRECISION_GRAYSCALE_SIMD_CUSTOMIZED");
 }
  
 
@@ -279,6 +295,7 @@ void TEST_ALL_ALGORITHMS(void) {
     TEST_PRECISION_BLAGRANGE_NON_LINEAR_BRIGHTNESS_CONTRAST();
     TEST_PRECISION_NEWTON_NON_LINEAR_BRIGHTNESS_CONTRAST(); 
     TEST_PRECISION_GRAYSCALE_SIMD_DEFAULT();
+    TEST_PRECISION_GRAYSCALE_SIMD_CUSTOMIZED();
     TEST_PRECISION_LINEAR_SIMD_DEFAULT();
     TEST_PRECISION_LINEAR_SIMD_NON_LINEAR_BRIGHTNESS_CONTRAST();
     TEST_PRECISION_GAUSSIAN_SIMD_DEFAULT();

@@ -57,7 +57,7 @@ void __ASSERT__EQUAL__IMGPARAMS(Image_params* expected, Image_params* actual, ch
 
 
 void start_testing(char* message) { 
-    freopen("/dev/null", "w", stderr); 
+    (void)! freopen("/dev/null", "w", stderr); 
     printf("===========================================================================================\n"); 
     printf("-> Testing %s started: \n", message);
 }

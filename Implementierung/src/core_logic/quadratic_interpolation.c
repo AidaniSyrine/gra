@@ -82,6 +82,43 @@ void quadratic_interpolation_gaussian(uint8_t* gray_map, size_t width, size_t he
         }
     }
 }
+void quadratic_interpolation_gaussian_LUT(uint8_t* gray_map, size_t width, size_t height,
+                                float es, float as, float em,
+                                float am, float ew, float aw) {
+
+     // Solving LS: Gaussian-Jordan Elimination + Partial Pivoting
+    float augmented_matrix[][4] = {
+        {es * es, es, 1,     as}, 
+        {em * em, em, 1,     am}, 
+        {ew * ew, ew, 1,     aw},
+    };
+    row_reduced_echelon_form(3, 4, augmented_matrix);
+    float a = augmented_matrix[0][3]; 
+    float b = augmented_matrix[1][3];
+    float c = augmented_matrix[2][3];
+
+    //Initialising LUT
+    short lut[256];
+    for (int i = 0; i < 256; ++i) lut[i] = -1;
+
+    // Calculating interpolation values
+    for(size_t i = 0; i < width * height; i++) {
+        if (lut[gray_map[i]] != -1) gray_map[i]=lut[gray_map[i]];
+        else {
+            uint8_t prev =gray_map[i];
+            if (gray_map[i] <= es) gray_map[i] = as;
+            else if (gray_map[i] >= ew) gray_map[i] = aw;
+            else if (gray_map[i] == em)  gray_map[i] = am;
+            else {
+                float result = a * gray_map[i] * gray_map[i] + b * gray_map[i] + c; 
+                if (result > aw) gray_map[i] = aw; 
+                else if (result < as) gray_map[i] = as; 
+                else gray_map[i] = result;
+            }
+            lut[prev] = gray_map[i];
+        }
+    }
+}
 
 void quadratic_interpolation_gaussian_SIMD(uint8_t* gray_map, size_t width, size_t height,
                                     float es, float as, float em,
@@ -254,44 +291,6 @@ void quadratic_interpolation_newton(uint8_t* gray_map, size_t width, size_t heig
                 else if (result <= as) gray_map[i] = as; 
                 else gray_map[i] = result; 
         }           
-    }
-}
-
-void quadratic_interpolation_newton_LUT(uint8_t* gray_map, size_t width, size_t height,
-                                    float es, float as, float em,
-                                    float am, float ew, float aw) {
-    
-    // Just for code readability and convenience
-    float x[] = {es, em, ew};
-    float diff_table[][3] = {{as}, {am}, {aw}};
-
-    // Compute Newton coefficients
-    for (size_t i = 1; i < sizeof (diff_table) / sizeof (*diff_table); i++) {
-        for (size_t j = 0; j < (sizeof(*diff_table) / sizeof(**diff_table)) - i; j++) {
-            diff_table[j][i]  = (diff_table[j + 1][i -1] - diff_table[j][i - 1]) / (x[i +j] - x[j]);
-        }
-    }
-    //Initialising LUT
-    short lut[256];
-    for (int i = 0; i < 256; ++i) lut[i] = -1;
-
-    // Newton interpolation
-    for(size_t i = 0; i < width * height; i++) {
-        if (lut[gray_map[i]]!= -1) gray_map[i]=lut[gray_map[i]];
-        else {
-            uint8_t prev =gray_map[i];
-            if (gray_map[i] <= es) gray_map[i] = as;
-            else if (gray_map[i] >= ew) gray_map[i] = aw;
-            else if (gray_map[i] == em) gray_map[i] = am;
-            else  { 
-                float result = (diff_table[0][0] + diff_table[0][1] * (gray_map[i] - x[0])
-                    + diff_table[0][2] * (gray_map[i] - x[0]) * (gray_map[i] - x[1])); 
-                if (result >= aw) gray_map[i] = aw; 
-                else if (result <= as) gray_map[i] = as; 
-                else gray_map[i] = result; 
-            }           
-            lut[prev]=gray_map[i];
-        }
     }
 }
 
