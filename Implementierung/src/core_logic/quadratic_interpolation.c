@@ -60,9 +60,9 @@ void quadratic_interpolation_gaussian(uint8_t* gray_map, size_t width, size_t he
 
     // Solving LS: Gaussian-Jordan Elimination + Partial Pivoting
     float augmented_matrix[][4] = {
-        {es * es, es, 1,     as}, 
-        {em * em, em, 1,     am}, 
         {ew * ew, ew, 1,     aw},
+        {em * em, em, 1,     am}, 
+        {es * es, es, 1,     as}
     };
     row_reduced_echelon_form(3, 4, augmented_matrix);
     float a = augmented_matrix[0][3]; 
