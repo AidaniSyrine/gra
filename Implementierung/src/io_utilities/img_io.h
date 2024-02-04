@@ -14,7 +14,6 @@
 #include <sys/mman.h>
 #include <sys/fcntl.h>
 
-//TODO WRITE Functions description 
 typedef struct Image_params {
     uint8_t color_depth; 
     size_t width; 

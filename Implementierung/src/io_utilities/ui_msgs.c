@@ -14,7 +14,6 @@ void print_goodbye(int state) {
         printf("==== Summary: 0 image is converted. 0 Error have been detected\n");
 }
 
-// TODO
 void print_help(void){
     printf("\n"
         "tonwertkorrektur - Apply tonal correction to PPM P6 images\n\n"

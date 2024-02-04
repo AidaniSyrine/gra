@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
     Image_params image_params = {
         .image_ptr = NULL
     };
-    //TODO Number of version 
+
     void (*adjustments[4])(const uint8_t*, size_t, size_t, float,
                             float, float, uint8_t,uint8_t, uint8_t,
                             uint8_t, uint8_t, uint8_t, uint8_t*) = {
@@ -130,7 +130,6 @@ int main(int argc, char* argv[]) {
         dealloc_input_params(&input_params); 
         dealloc_image_params(&image_params);
         if (gray_map != NULL) {
-            printf("-> Free: gray_map\n");
             free(gray_map); 
         }
         return result; 

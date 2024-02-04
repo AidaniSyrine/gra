@@ -26,22 +26,37 @@ int test_and_set_largs(float* valid_args, char* option_args, int flag) {
             errno = 0;
             
             float tmp = strtof(token, &endptr);
-            if(endptr == token || *endptr != '\0' ||errno == ERANGE) return EXIT_FAILURE;
+            if(endptr == token || *endptr != '\0' ||errno == ERANGE) {
+                fprintf(stderr, "Failed! Invalid option(s).\n");
+                return EXIT_FAILURE;
+            }
             
             if (flag == 'c') {
-                if (i > 2 || tmp < 0) {
+                if (i > 2 || tmp < 0 || (tmp != tmp) ||  isinf(tmp)) {
                     fprintf(stderr, "Failed! Invalid coefficient option(s).\n");
                     return EXIT_FAILURE;
                 }
                 valid_args[i] = tmp;
             } else {
-                if (i > 1 || tmp > 255 || tmp < 0) {
+                if (i > 1 || tmp > 255 || tmp < 0 || tmp != (int)tmp || (tmp != tmp) || isinf(tmp)) {
                     fprintf(stderr, "Failed! Invalid long option(s).\n");
                     return EXIT_FAILURE;
                 }
                 valid_args[i] = tmp;
             }
         }
+        if (flag == 'c') {
+                if (i != 3 ) {
+                    fprintf(stderr, "Failed! Missing coefficient option(s).\n");
+                    return EXIT_FAILURE;
+                }
+            } else {
+                if (i != 2 ) {
+                    fprintf(stderr, "Failed! Missing long option(s).\n");
+                    return EXIT_FAILURE;
+                }
+
+            }
         return EXIT_SUCCESS;
 }
 
@@ -111,25 +126,21 @@ int arg_parser(Input_params* input_params, int argc, char* argv[]) {
                             input_params->a = valid_args[0]; 
                             input_params->b = valid_args[1];
                             input_params->c = valid_args[2];
-                            printf("a = %f, b = %f, c = %f\n", input_params->a, input_params->b, input_params->c); 
                             break;
                         case 's':
                             if (test_and_set_largs(valid_args, optarg, sflag)) return EXIT_FAILURE;
                             input_params->es = valid_args[0];
                             input_params->as = valid_args[1];
-                            printf("es = %f, as = %f\n", input_params->es, input_params->as);
                             break;
                         case 'm':
                             if (test_and_set_largs(valid_args, optarg, mflag)) return EXIT_FAILURE;
                             input_params->em = valid_args[0]; 
                             input_params->am = valid_args[1];
-                            printf("em = %f, am = %f\n", input_params->em, input_params->am);
                             break;
                         case 'w':
                             if (test_and_set_largs(valid_args, optarg, wflag)) return EXIT_FAILURE;
                             input_params->ew = valid_args[0];
                             input_params->aw = valid_args[1];
-                            printf("ew = %f, aw = %f\n", input_params->ew, input_params->aw);
                             break;
                     } break;
                 case 1: // Non-option arg input file
@@ -150,7 +161,6 @@ int arg_parser(Input_params* input_params, int argc, char* argv[]) {
                     if (vflag) goto arg_error;
                     if (test_and_set_sarg(&(input_params->version), optarg)) 
                         return  EXIT_FAILURE;
-                    // TODO: set number of versions
                     if (input_params->version < 0 || input_params->version > 3) {
                         fprintf(stderr, "Failed! Version number is undefined. Try --help\n");
                         return EXIT_FAILURE; 
@@ -202,15 +212,15 @@ int arg_parser(Input_params* input_params, int argc, char* argv[]) {
     
     // Adjust middle brightness and contrast values
     if (!mflag) {
-        input_params->em = (input_params->es + input_params->aw) / 2;
-        input_params->am = (input_params->as + input_params->aw) / 2;
+        input_params->em = (int) (input_params->es + input_params->ew) / 2;
+        input_params->am = (int) (input_params->as + input_params->aw) / 2;
     }
     
     // Check contrast and brightness values
     if (sflag || mflag || wflag)
-        if (input_params->es > input_params->ew || input_params->es > input_params->em
-            || input_params->ew < input_params->em || input_params->as > input_params->aw
-            || input_params->as > input_params->am || input_params->aw < input_params->am) {
+        if (input_params->es >= input_params->ew || input_params->es >= input_params->em
+            || input_params->ew <= input_params->em || input_params->as >= input_params->aw
+            || input_params->as >= input_params->am || input_params->aw <= input_params->am) {
             fprintf(stderr, "Failed! Invalid long option(s).\n"
             "Check provided contrast and brightness values\n");
             return EXIT_FAILURE;
@@ -229,14 +239,11 @@ int arg_parser(Input_params* input_params, int argc, char* argv[]) {
         return EXIT_FAILURE;
 }
 
-//TODO remove print statements 
 void dealloc_input_params(Input_params* input_params) {
     if(input_params->input_img_path != NULL) {
-        printf("-> Free: %s\n", input_params->input_img_path);
         free(input_params->input_img_path); 
     }
     if(input_params->output_img_path != NULL) {
-        printf("-> Free: %s\n", input_params->output_img_path);
         free(input_params->output_img_path);
     }
 }

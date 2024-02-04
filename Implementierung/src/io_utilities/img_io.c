@@ -123,6 +123,5 @@ void dealloc_image_params(Image_params* image_params) {
             printf("ret = %d\n", ret);
             fprintf(stderr, "Failed! Unable to free the PPM image. %s\n", strerror(errno)); 
         }
-        printf("-> Free: PPM image\n");
     }
 }
